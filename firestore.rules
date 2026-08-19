@@ -1,0 +1,21 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /reclamaciones/{ticketId} {
+
+      // Cualquiera puede CREAR un ticket (sin login), pero con estructura obligatoria
+      allow create: if request.resource.data.keys().hasAll(['nombre', 'email', 'tipo', 'mensaje', 'estado', 'createdAt'])
+                    && request.resource.data.nombre is string
+                    && request.resource.data.email is string
+                    && request.resource.data.estado == 'Pendiente'; // nadie crea un ticket ya "resuelto"
+
+      // Solo el admin autenticado puede leer y actualizar (ej: cambiar estado, agregar respuesta)
+      allow read, update: if request.auth != null
+                           && request.auth.token.email == 'TU-CORREO-ADMIN@gmail.com';
+
+      // Nadie borra tickets desde el cliente (ni el usuario ni accidentalmente el admin)
+      allow delete: if false;
+    }
+  }
+}
