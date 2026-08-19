@@ -87,7 +87,10 @@ export function ClaimForm() {
       setTipo("Reclamo");
       setMensaje("");
     } catch (error) {
-      setErrorMessage("Ocurrió un error al enviar tu solicitud. Intenta nuevamente.");
+      setErrorMessage(
+        error,
+        "Ocurrió un error al enviar tu solicitud. Intenta nuevamente.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -104,6 +107,7 @@ export function ClaimForm() {
         setIsCopied(false);
       }, 2500);
     } catch (err) {
+      console.error(err);
       // Fallback si clipboard API no está disponible
       setIsCopied(false);
     }
@@ -119,7 +123,14 @@ export function ClaimForm() {
     return (
       <div className="claim-success-card">
         <div className="claim-success-badge">
-          <CheckCircle2 size={16} style={{ display: "inline", verticalAlign: "middle", marginRight: "6px" }} />
+          <CheckCircle2
+            size={16}
+            style={{
+              display: "inline",
+              verticalAlign: "middle",
+              marginRight: "6px",
+            }}
+          />
           ¡Solicitud Registrada con Éxito!
         </div>
         <h2>Número de Radicado:</h2>
@@ -144,13 +155,20 @@ export function ClaimForm() {
           </button>
         </div>
         <p>
-          Guarda este código para consultar el estado de tu trámite en cualquier momento.
+          Guarda este código para consultar el estado de tu trámite en cualquier
+          momento.
         </p>
         <button
           type="button"
           className="claim-button"
           onClick={handleReset}
-          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginTop: "16px" }}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "8px",
+            marginTop: "16px",
+          }}
         >
           <RotateCcw size={18} />
           Registrar otra solicitud
@@ -161,23 +179,38 @@ export function ClaimForm() {
 
   return (
     <form className="claim-form" onSubmit={handleSubmit} noValidate>
-      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          marginBottom: "8px",
+        }}
+      >
         <FileText size={28} style={{ color: "var(--accent)" }} />
         <h2 style={{ margin: 0 }}>Libro de Reclamaciones</h2>
       </div>
       <p className="claim-description">
-        Ingresa tus datos y el detalle de tu reclamo o queja. Te asignaremos un número de radicado.
+        Ingresa tus datos y el detalle de tu reclamo o queja. Te asignaremos un
+        número de radicado.
       </p>
 
       {errorMessage && (
-        <div className="claim-error-alert" role="alert" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <div
+          className="claim-error-alert"
+          role="alert"
+          style={{ display: "flex", alignItems: "center", gap: "8px" }}
+        >
           <AlertCircle size={18} />
           <span>{errorMessage}</span>
         </div>
       )}
 
       <div className="claim-field">
-        <label htmlFor="nombre" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <label
+          htmlFor="nombre"
+          style={{ display: "flex", alignItems: "center", gap: "6px" }}
+        >
           <User size={15} />
           Nombre Completo
         </label>
@@ -193,7 +226,10 @@ export function ClaimForm() {
       </div>
 
       <div className="claim-field">
-        <label htmlFor="email" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <label
+          htmlFor="email"
+          style={{ display: "flex", alignItems: "center", gap: "6px" }}
+        >
           <Mail size={15} />
           Correo Electrónico
         </label>
@@ -209,7 +245,10 @@ export function ClaimForm() {
       </div>
 
       <div className="claim-field">
-        <label htmlFor="tipo" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <label
+          htmlFor="tipo"
+          style={{ display: "flex", alignItems: "center", gap: "6px" }}
+        >
           <Tag size={15} />
           Tipo de Solicitud
         </label>
@@ -228,7 +267,10 @@ export function ClaimForm() {
       </div>
 
       <div className="claim-field">
-        <label htmlFor="mensaje" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <label
+          htmlFor="mensaje"
+          style={{ display: "flex", alignItems: "center", gap: "6px" }}
+        >
           <MessageSquare size={15} />
           Detalle / Mensaje
         </label>
@@ -247,7 +289,12 @@ export function ClaimForm() {
         type="submit"
         className="claim-submit-button"
         disabled={isSubmitting}
-        style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "8px",
+        }}
       >
         {isSubmitting ? (
           <>

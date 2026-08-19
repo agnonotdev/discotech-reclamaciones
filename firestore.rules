@@ -2,19 +2,24 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /reclamaciones/{ticketId} {
 
-      // Cualquiera puede CREAR un ticket (sin login), pero con estructura obligatoria
+    match /admins/{email} {
+      // Un usuario solo puede leer SU PROPIO documento de admin (para verificar si lo es)
+      allow read: if request.auth != null && request.auth.token.email == email;
+      // Nadie escribe esta colección desde el cliente; se gestiona manualmente
+      allow write: if false;
+    }
+
+    match /reclamaciones/{ticketId} {
       allow create: if request.resource.data.keys().hasAll(['nombre', 'email', 'tipo', 'mensaje', 'estado', 'createdAt'])
                     && request.resource.data.nombre is string
                     && request.resource.data.email is string
-                    && request.resource.data.estado == 'Pendiente'; // nadie crea un ticket ya "resuelto"
+                    && request.resource.data.estado == 'Pendiente';
 
-      // Solo el admin autenticado puede leer y actualizar (ej: cambiar estado, agregar respuesta)
+      // Se valida contra la colección admins en vez de un correo fijo
       allow read, update: if request.auth != null
-                           && request.auth.token.email == 'TU-CORREO-ADMIN@gmail.com';
+                           && exists(/databases/$(database)/documents/admins/$(request.auth.token.email));
 
-      // Nadie borra tickets desde el cliente (ni el usuario ni accidentalmente el admin)
       allow delete: if false;
     }
   }

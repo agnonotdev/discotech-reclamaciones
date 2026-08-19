@@ -9,19 +9,26 @@ import { useAuth } from "../context/AuthContext.jsx";
  */
 
 export function ProtectedRoute({ children }) {
-  const { currentUser, loading } = useAuth();
+  const { currentUser, isAdmin, loading } = useAuth();
   const location = useLocation();
 
   if (loading) {
     return (
-      <div className="claim-form" style={{ textAlign: "center", padding: "40px 20px" }}>
-        <Loader2 size={32} className="animate-spin" style={{ margin: "0 auto 12px", color: "var(--accent)" }} />
+      <div
+        className="claim-form"
+        style={{ textAlign: "center", padding: "40px 20px" }}
+      >
+        <Loader2
+          size={32}
+          className="animate-spin"
+          style={{ margin: "0 auto 12px", color: "var(--accent)" }}
+        />
         <p>Verificando credenciales de acceso...</p>
       </div>
     );
   }
 
-  if (!currentUser) {
+  if (!currentUser || !isAdmin) {
     return <Navigate to="/admin/login" state={{ from: location }} replace />;
   }
 

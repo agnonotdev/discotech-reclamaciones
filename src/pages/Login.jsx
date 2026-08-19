@@ -1,8 +1,13 @@
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword } from "firebase/auth";
 import {
-  Lock,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import {
   Mail,
   KeyRound,
   LogIn,
@@ -11,12 +16,12 @@ import {
   Loader2,
   Shield,
 } from "lucide-react";
-import { auth } from "../firebase.js";
+import { auth, db } from "../firebase.js";
 
 /**
  * Descripción: Página de inicio de sesión administrativo con soporte para Google y Correo/Contraseña y diseño enriquecido con Lucide.
- * Requiere: Firebase Auth configurado y lucide-react.
- * Implementa: Autenticación de administradores con manejo seguro de errores y redirección.
+ * Requiere: Firebase Auth y Firestore configurados, lucide-react.
+ * Implementa: Autenticación de administradores con verificación previa en la colección admins y manejo seguro de errores.
  */
 
 export function Login() {
@@ -33,20 +38,28 @@ export function Login() {
   async function handleEmailLogin(e) {
     e.preventDefault();
     setError("");
-
     if (!email.trim() || !password.trim()) {
       setError("Por favor completa todos los campos.");
       return;
     }
-
     setLoading(true);
-
     try {
-      await signInWithEmailAndPassword(auth, email.trim(), password);
+      const cred = await signInWithEmailAndPassword(
+        auth,
+        email.trim(),
+        password
+      );
+      const adminSnap = await getDoc(doc(db, "admins", cred.user.email));
+      if (!adminSnap.exists()) {
+        await signOut(auth);
+        setError("Este correo no tiene permisos de administrador.");
+        return;
+      }
       navigate(redirectPath, { replace: true });
-    } catch (err) {
-      // Por seguridad, no se expone si falló el email o la contraseña
-      setError("Credenciales incorrectas. Verifica tus datos e intenta nuevamente.");
+    } catch {
+      setError(
+        "Credenciales incorrectas. Verifica tus datos e intenta nuevamente."
+      );
     } finally {
       setLoading(false);
     }
@@ -58,7 +71,13 @@ export function Login() {
 
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      const cred = await signInWithPopup(auth, provider);
+      const adminSnap = await getDoc(doc(db, "admins", cred.user.email));
+      if (!adminSnap.exists()) {
+        await signOut(auth);
+        setError("Este correo no tiene permisos de administrador.");
+        return;
+      }
       navigate(redirectPath, { replace: true });
     } catch (err) {
       if (err.code === "auth/popup-closed-by-user") {
@@ -76,14 +95,28 @@ export function Login() {
       <div style={{ marginBottom: "16px" }}>
         <Link
           to="/"
-          style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: "var(--text)", textDecoration: "none", fontSize: "14px" }}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "6px",
+            color: "var(--text)",
+            textDecoration: "none",
+            fontSize: "14px",
+          }}
         >
           <ArrowLeft size={16} />
           <span>Volver al libro de reclamaciones</span>
         </Link>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          marginBottom: "8px",
+        }}
+      >
         <Shield size={28} style={{ color: "var(--accent)" }} />
         <h2 style={{ margin: 0 }}>Acceso Administrativo</h2>
       </div>
@@ -93,7 +126,11 @@ export function Login() {
       </p>
 
       {error && (
-        <div className="claim-error-alert" role="alert" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <div
+          className="claim-error-alert"
+          role="alert"
+          style={{ display: "flex", alignItems: "center", gap: "8px" }}
+        >
           <AlertCircle size={18} />
           <span>{error}</span>
         </div>
@@ -132,7 +169,10 @@ export function Login() {
 
       <form onSubmit={handleEmailLogin} noValidate>
         <div className="claim-field">
-          <label htmlFor="admin-email" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <label
+            htmlFor="admin-email"
+            style={{ display: "flex", alignItems: "center", gap: "6px" }}
+          >
             <Mail size={15} />
             Correo Electrónico
           </label>
@@ -148,7 +188,10 @@ export function Login() {
         </div>
 
         <div className="claim-field">
-          <label htmlFor="admin-password" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <label
+            htmlFor="admin-password"
+            style={{ display: "flex", alignItems: "center", gap: "6px" }}
+          >
             <KeyRound size={15} />
             Contraseña
           </label>
@@ -167,7 +210,12 @@ export function Login() {
           type="submit"
           className="claim-submit-button"
           disabled={loading}
-          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "8px",
+          }}
         >
           {loading ? (
             <>
@@ -198,16 +246,17 @@ export default Login;
  * mediante Google (Popup) y mediante formulario de credenciales (Email y Contraseña) con iconos Lucide.
  *
  * Lógica Clave:
- * - Botón Google: ejecuta signInWithPopup con GoogleAuthProvider.
- * - Formulario Email/Password: ejecuta signInWithEmailAndPassword.
+ * - Botón Google: ejecuta signInWithPopup con GoogleAuthProvider y valida en colección admins.
+ * - Formulario Email/Password: ejecuta signInWithEmailAndPassword y valida en colección admins.
  * - Manejo de errores de credenciales sin revelar qué dato específico falló.
  * - Bloqueo de botones durante la carga para evitar solicitudes duplicadas.
- * - Redirección a la ruta previa o a /admin al autenticarse.
+ * - Redirección a la ruta previa o a /admin al autenticarse exitosamente.
  *
  * Dependencias Externas:
- * - lucide-react (Lock, Mail, KeyRound, LogIn, AlertCircle, ArrowLeft, Loader2, Shield)
- * - firebase/auth (signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword)
+ * - lucide-react (Mail, KeyRound, LogIn, AlertCircle, ArrowLeft, Loader2, Shield)
+ * - firebase/auth (signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut)
+ * - firebase/firestore (doc, getDoc)
  * - react-router-dom (useNavigate, useLocation, Link)
- * - src/firebase.js (auth)
+ * - src/firebase.js (auth, db)
  *
  */
