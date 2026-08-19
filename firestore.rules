@@ -3,11 +3,11 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    match /admins/{email} {
+    match /admins/{adminId} {
       // Un usuario solo puede leer SU PROPIO documento de admin (para verificar si lo es)
-      allow read: if request.auth != null && request.auth.token.email == email;
+      allow read: if request.auth != null && request.auth.token.email == resource.data.email;
       // Nadie escribe esta colección desde el cliente; se gestiona manualmente
-      allow write: if false;
+      allow create, update, delete: if false;
     }
 
     match /reclamaciones/{ticketId} {

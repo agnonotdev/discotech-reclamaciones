@@ -5,8 +5,9 @@ import {
   GoogleAuthProvider,
   signInWithEmailAndPassword,
   signOut,
+  sendPasswordResetEmail,
 } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import {
   Mail,
   KeyRound,
@@ -28,12 +29,32 @@ export function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [resetMessage, setResetMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
 
   const redirectPath = location.state?.from?.pathname || "/admin";
+
+  async function handleResetPassword() {
+    setError("");
+    setResetMessage("");
+    if (!email.trim()) {
+      setError("Por favor ingresa tu correo en el campo superior para restablecer tu contraseña.");
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      await sendPasswordResetEmail(auth, email.trim());
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+      setResetMessage("Si el correo existe, te enviamos un enlace");
+    }
+  }
 
   async function handleEmailLogin(e) {
     e.preventDefault();
@@ -49,8 +70,15 @@ export function Login() {
         email.trim(),
         password
       );
-      const adminSnap = await getDoc(doc(db, "admins", cred.user.email));
-      if (!adminSnap.exists()) {
+      
+      const q = query(
+        collection(db, "admins"),
+        where("email", "==", cred.user.email),
+        where("isActive", "==", true)
+      );
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
         await signOut(auth);
         setError("Este correo no tiene permisos de administrador.");
         return;
@@ -72,8 +100,15 @@ export function Login() {
     try {
       const provider = new GoogleAuthProvider();
       const cred = await signInWithPopup(auth, provider);
-      const adminSnap = await getDoc(doc(db, "admins", cred.user.email));
-      if (!adminSnap.exists()) {
+      
+      const q = query(
+        collection(db, "admins"),
+        where("email", "==", cred.user.email),
+        where("isActive", "==", true)
+      );
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
         await signOut(auth);
         setError("Este correo no tiene permisos de administrador.");
         return;
@@ -229,6 +264,31 @@ export function Login() {
             </>
           )}
         </button>
+
+        {resetMessage && (
+          <div style={{ marginTop: "12px", color: "var(--accent)", fontSize: "14px", textAlign: "center", backgroundColor: "rgba(0,0,0,0.05)", padding: "8px", borderRadius: "4px" }}>
+            {resetMessage}
+          </div>
+        )}
+
+        <div style={{ marginTop: "16px", textAlign: "center" }}>
+          <button
+            type="button"
+            onClick={handleResetPassword}
+            disabled={loading}
+            style={{
+              background: "none",
+              border: "none",
+              color: "var(--text)",
+              textDecoration: "underline",
+              cursor: "pointer",
+              fontSize: "14px",
+              opacity: 0.8
+            }}
+          >
+            ¿Olvidaste tu contraseña?
+          </button>
+        </div>
       </form>
     </div>
   );

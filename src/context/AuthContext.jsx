@@ -6,7 +6,7 @@ import {
   GoogleAuthProvider,
   signOut,
 } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { auth, db } from "../firebase.js";
 
 /**
@@ -24,16 +24,21 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setLoading(true);
       if (user && user.email) {
         try {
-          const adminRef = doc(db, "admins", user.email);
-          const adminSnap = await getDoc(adminRef);
+          const q = query(
+            collection(db, "admins"),
+            where("email", "==", user.email),
+            where("isActive", "==", true)
+          );
+          const querySnapshot = await getDocs(q);
 
-          if (adminSnap.exists()) {
+          if (!querySnapshot.empty) {
             setCurrentUser(user);
             setIsAdmin(true);
           } else {
-            // No autorizado: cierra sesión y no lo dejes pasar
+            // No autorizado o no activo: cierra sesión y no lo dejes pasar
             await signOut(auth);
             setCurrentUser(null);
             setIsAdmin(false);

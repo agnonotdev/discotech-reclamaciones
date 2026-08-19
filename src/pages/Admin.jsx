@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { db } from "../firebase.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import { ChangePassword } from "../components/ChangePassword.jsx";
 
 /**
  * Descripción: Panel de administración en tiempo real para gestión de reclamaciones y quejas con iconos Lucide.
@@ -289,6 +290,12 @@ export function Admin() {
           ))}
         </div>
       )}
+
+      {/* Sección de Cambio de Contraseña */}
+      <section style={{ marginTop: "40px", borderTop: "1px solid var(--border)", paddingTop: "20px" }}>
+        <h2 style={{ fontSize: "1.2rem", marginBottom: "16px", color: "var(--text)" }}>Configuración</h2>
+        <ChangePassword />
+      </section>
     </div>
   );
 }
