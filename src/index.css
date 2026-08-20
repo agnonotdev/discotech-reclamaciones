@@ -782,3 +782,23 @@ code {
   animation: spin 1s linear infinite;
 }
 
+/* Pie de Página Global */
+.app-footer {
+  margin-top: auto;
+  padding: 24px 16px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--text);
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.app-footer p {
+  margin: 0;
+  opacity: 0.85;
+}
+
+.footer-url {
+  color: var(--accent);
+  text-decoration: none;
+}

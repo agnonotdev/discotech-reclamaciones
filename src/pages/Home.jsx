@@ -11,19 +11,35 @@ import { ClaimForm } from "../components/ClaimForm.jsx";
 export function Home() {
   return (
     <main className="home-page" style={{ padding: "20px" }}>
-      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: "560px", margin: "0 auto 16px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "var(--text-h)", fontWeight: "600" }}>
-          <ShieldCheck size={22} style={{ color: "var(--accent)" }} />
-          <span>Plataforma Oficial de Reclamaciones</span>
-        </div>
+      <header style={{ maxWidth: "560px", margin: "0 auto 24px", position: "relative" }}>
+        {/* Enlace Admin en la esquina superior derecha */}
         <Link
           to="/admin"
-          style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--text)", textDecoration: "none", fontSize: "14px", fontWeight: "500" }}
+          style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            color: "var(--text)",
+            textDecoration: "none",
+            fontSize: "14px",
+            fontWeight: "500",
+          }}
           title="Acceso Administrativo"
         >
           <Lock size={15} />
           <span>Admin</span>
         </Link>
+
+        {/* Título centrado con icono grande arriba */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", textAlign: "center", paddingTop: "8px" }}>
+          <ShieldCheck size={48} style={{ color: "var(--accent)" }} />
+          <span style={{ color: "var(--text-h)", fontWeight: "600", fontSize: "20px" }}>
+            Plataforma Oficial de Reclamaciones
+          </span>
+        </div>
       </header>
       <ClaimForm />
     </main>

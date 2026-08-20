@@ -299,7 +299,8 @@ export function Login() {
                 lineHeight: "1.5",
               }}
             >
-              Si has olvidado tu contraseña, contacta a un <strong>admin superior</strong>.
+              Por seguridad, no puedes reestablecer tu contraseña en este espacio.
+              Para ello, deberás contactar a un <strong>admin superior</strong>.
             </p>
 
             <button
