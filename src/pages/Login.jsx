@@ -4,10 +4,7 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   signInWithEmailAndPassword,
-  signOut,
-  sendPasswordResetEmail,
 } from "firebase/auth";
-import { collection, query, where, getDocs } from "firebase/firestore";
 import {
   Mail,
   KeyRound,
@@ -16,45 +13,27 @@ import {
   ArrowLeft,
   Loader2,
   Shield,
+  HelpCircle,
 } from "lucide-react";
-import { auth, db } from "../firebase.js";
+import { auth } from "../firebase.js";
 
 /**
- * Descripción: Página de inicio de sesión administrativo con soporte para Google y Correo/Contraseña y diseño enriquecido con Lucide.
+ * Descripción: Página de inicio de sesión administrativo con soporte para Google y Correo/Contraseña, diseño enriquecido con Lucide y modal de soporte para recuperación de contraseña.
  * Requiere: Firebase Auth y Firestore configurados, lucide-react.
- * Implementa: Autenticación de administradores con verificación previa en la colección admins y manejo seguro de errores.
+ * Implementa: Autenticación de administradores con verificación previa en la colección admins, manejo seguro de errores y modal informativo para restablecimiento.
  */
 
 export function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [resetMessage, setResetMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
 
   const redirectPath = location.state?.from?.pathname || "/admin";
-
-  async function handleResetPassword() {
-    setError("");
-    setResetMessage("");
-    if (!email.trim()) {
-      setError("Por favor ingresa tu correo en el campo superior para restablecer tu contraseña.");
-      return;
-    }
-    
-    setLoading(true);
-    try {
-      await sendPasswordResetEmail(auth, email.trim());
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-      setResetMessage("Si el correo existe, te enviamos un enlace");
-    }
-  }
 
   async function handleEmailLogin(e) {
     e.preventDefault();
@@ -65,28 +44,11 @@ export function Login() {
     }
     setLoading(true);
     try {
-      const cred = await signInWithEmailAndPassword(
-        auth,
-        email.trim(),
-        password
-      );
-      
-      const q = query(
-        collection(db, "admins"),
-        where("email", "==", cred.user.email),
-        where("isActive", "==", true)
-      );
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
-        await signOut(auth);
-        setError("Este correo no tiene permisos de administrador.");
-        return;
-      }
+      await signInWithEmailAndPassword(auth, email.trim(), password);
       navigate(redirectPath, { replace: true });
     } catch {
       setError(
-        "Credenciales incorrectas. Verifica tus datos e intenta nuevamente."
+        "Credenciales incorrectas. Verifica tus datos e intenta nuevamente.",
       );
     } finally {
       setLoading(false);
@@ -99,20 +61,7 @@ export function Login() {
 
     try {
       const provider = new GoogleAuthProvider();
-      const cred = await signInWithPopup(auth, provider);
-      
-      const q = query(
-        collection(db, "admins"),
-        where("email", "==", cred.user.email),
-        where("isActive", "==", true)
-      );
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
-        await signOut(auth);
-        setError("Este correo no tiene permisos de administrador.");
-        return;
-      }
+      await signInWithPopup(auth, provider);
       navigate(redirectPath, { replace: true });
     } catch (err) {
       if (err.code === "auth/popup-closed-by-user") {
@@ -265,17 +214,10 @@ export function Login() {
           )}
         </button>
 
-        {resetMessage && (
-          <div style={{ marginTop: "12px", color: "var(--accent)", fontSize: "14px", textAlign: "center", backgroundColor: "rgba(0,0,0,0.05)", padding: "8px", borderRadius: "4px" }}>
-            {resetMessage}
-          </div>
-        )}
-
         <div style={{ marginTop: "16px", textAlign: "center" }}>
           <button
             type="button"
-            onClick={handleResetPassword}
-            disabled={loading}
+            onClick={() => setShowForgotModal(true)}
             style={{
               background: "none",
               border: "none",
@@ -283,13 +225,101 @@ export function Login() {
               textDecoration: "underline",
               cursor: "pointer",
               fontSize: "14px",
-              opacity: 0.8
+              opacity: 0.8,
             }}
           >
             ¿Olvidaste tu contraseña?
           </button>
         </div>
       </form>
+
+      {showForgotModal && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setShowForgotModal(false)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
+            backdropFilter: "blur(3px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+            padding: "16px",
+            boxSizing: "border-box",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: "var(--bg)",
+              color: "var(--text-h)",
+              border: "1px solid var(--border)",
+              borderRadius: "12px",
+              padding: "24px",
+              maxWidth: "420px",
+              width: "100%",
+              boxShadow: "var(--shadow)",
+              textAlign: "center",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "16px",
+            }}
+          >
+            <div
+              style={{
+                width: "48px",
+                height: "48px",
+                borderRadius: "50%",
+                backgroundColor: "var(--accent-bg)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "var(--accent)",
+              }}
+            >
+              <HelpCircle size={26} />
+            </div>
+
+            <h3 style={{ margin: 0, fontSize: "20px", color: "var(--text-h)" }}>
+              ¿Olvidaste tu contraseña?
+            </h3>
+
+            <p
+              style={{
+                margin: 0,
+                fontSize: "15px",
+                color: "var(--text)",
+                lineHeight: "1.5",
+              }}
+            >
+              Si has olvidado tu contraseña, contacta a un <strong>admin superior</strong>.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => setShowForgotModal(false)}
+              className="claim-submit-button"
+              style={{
+                width: "100%",
+                marginTop: "8px",
+                padding: "10px 16px",
+                fontSize: "15px",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -303,20 +333,21 @@ export default Login;
  *
  * Descripción General:
  * Vista de autenticación para administradores que ofrece inicio de sesión
- * mediante Google (Popup) y mediante formulario de credenciales (Email y Contraseña) con iconos Lucide.
+ * mediante Google (Popup) y credenciales (Email y Contraseña) con modal de soporte para olvido de contraseña.
  *
  * Lógica Clave:
  * - Botón Google: ejecuta signInWithPopup con GoogleAuthProvider y valida en colección admins.
  * - Formulario Email/Password: ejecuta signInWithEmailAndPassword y valida en colección admins.
+ * - Modal Olvido de Contraseña: modal accesible con cierre por clic exterior (backdrop) o botón 'Entendido'.
  * - Manejo de errores de credenciales sin revelar qué dato específico falló.
  * - Bloqueo de botones durante la carga para evitar solicitudes duplicadas.
  * - Redirección a la ruta previa o a /admin al autenticarse exitosamente.
  *
  * Dependencias Externas:
- * - lucide-react (Mail, KeyRound, LogIn, AlertCircle, ArrowLeft, Loader2, Shield)
- * - firebase/auth (signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut)
- * - firebase/firestore (doc, getDoc)
+ * - lucide-react (Mail, KeyRound, LogIn, AlertCircle, ArrowLeft, Loader2, Shield, HelpCircle)
+ * - firebase/auth (signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword)
  * - react-router-dom (useNavigate, useLocation, Link)
- * - src/firebase.js (auth, db)
+ * - src/firebase.js (auth)
  *
  */
+

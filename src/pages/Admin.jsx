@@ -17,10 +17,10 @@ import {
   Inbox,
   Home,
   MessageSquare,
+  Search,
 } from "lucide-react";
 import { db } from "../firebase.js";
 import { useAuth } from "../context/AuthContext.jsx";
-import { ChangePassword } from "../components/ChangePassword.jsx";
 
 /**
  * Descripción: Panel de administración en tiempo real para gestión de reclamaciones y quejas con iconos Lucide.
@@ -43,6 +43,15 @@ export function Admin() {
   const [filterStatus, setFilterStatus] = useState("Todos");
   const [updatingId, setUpdatingId] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 5);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   useEffect(() => {
     const reclamacionesRef = collection(db, "reclamaciones");
@@ -145,11 +154,24 @@ export function Admin() {
 
   // Filtrado local en memoria para no complicar el listener de Firestore
   const filteredTickets = useMemo(() => {
-    if (filterStatus === "Todos") {
-      return tickets;
+    let result = tickets;
+
+    if (filterStatus !== "Todos") {
+      result = result.filter((ticket) => ticket.estado === filterStatus);
     }
-    return tickets.filter((ticket) => ticket.estado === filterStatus);
-  }, [tickets, filterStatus]);
+
+    if (debouncedSearchTerm.trim()) {
+      const lower = debouncedSearchTerm.toLowerCase();
+      result = result.filter((ticket) =>
+        (ticket.nombre && ticket.nombre.toLowerCase().includes(lower)) ||
+        (ticket.email && ticket.email.toLowerCase().includes(lower)) ||
+        (ticket.radicado && ticket.radicado.toLowerCase().includes(lower)) ||
+        (ticket.mensaje && ticket.mensaje.toLowerCase().includes(lower))
+      );
+    }
+
+    return result;
+  }, [tickets, filterStatus, debouncedSearchTerm]);
 
   const counts = useMemo(() => {
     return {
@@ -200,23 +222,36 @@ export function Admin() {
         </div>
       )}
 
-      {/* Barra de Filtros de Estado */}
-      <div className="admin-filter-bar" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--text)", fontSize: "14px", marginRight: "4px" }}>
-          <Filter size={16} />
-          <span>Filtrar:</span>
+      {/* Barra de Filtros de Estado y Buscador */}
+      <div className="admin-filter-bar" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "16px", marginBottom: "20px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--text)", fontSize: "14px", marginRight: "4px" }}>
+            <Filter size={16} />
+            <span>Filtrar:</span>
+          </div>
+          {STATUS_OPTIONS.map((status) => (
+            <button
+              key={status}
+              type="button"
+              className={`admin-filter-pill ${filterStatus === status ? "active" : ""}`}
+              onClick={() => setFilterStatus(status)}
+            >
+              {status}
+              <span className="admin-filter-count">{counts[status] || 0}</span>
+            </button>
+          ))}
         </div>
-        {STATUS_OPTIONS.map((status) => (
-          <button
-            key={status}
-            type="button"
-            className={`admin-filter-pill ${filterStatus === status ? "active" : ""}`}
-            onClick={() => setFilterStatus(status)}
-          >
-            {status}
-            <span className="admin-filter-count">{counts[status] || 0}</span>
-          </button>
-        ))}
+
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "var(--bg)", border: "1px solid var(--border)", padding: "6px 12px", borderRadius: "8px" }}>
+          <Search size={16} style={{ color: "var(--text)" }} />
+          <input
+            type="text"
+            placeholder="Buscar..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ border: "none", background: "transparent", outline: "none", color: "var(--text-h)", width: "200px" }}
+          />
+        </div>
       </div>
 
       {loading ? (
@@ -291,11 +326,6 @@ export function Admin() {
         </div>
       )}
 
-      {/* Sección de Cambio de Contraseña */}
-      <section style={{ marginTop: "40px", borderTop: "1px solid var(--border)", paddingTop: "20px" }}>
-        <h2 style={{ fontSize: "1.2rem", marginBottom: "16px", color: "var(--text)" }}>Configuración</h2>
-        <ChangePassword />
-      </section>
     </div>
   );
 }
