@@ -11,7 +11,6 @@ import {
   Calendar,
   User,
   Mail,
-  ArrowRight,
   Loader2,
   AlertCircle,
   Inbox,
@@ -23,18 +22,13 @@ import { db } from "../firebase.js";
 import { useAuth } from "../context/AuthContext.jsx";
 
 /**
- * Descripción: Panel de administración en tiempo real para gestión de reclamaciones y quejas con iconos Lucide.
+ * Descripción: Panel de administración en tiempo real para gestión de reclamaciones y quejas con iconos Lucide y selector de estados.
  * Requiere: Sesión activa de administrador, conexión a Firestore y lucide-react.
- * Implementa: Listener onSnapshot para reactividad en vivo, filtrado local y transición de estados con updateDoc.
+ * Implementa: Listener onSnapshot para reactividad en vivo, filtrado local, búsqueda en tiempo real y actualización de estado mediante selector.
  */
 
-const STATUS_OPTIONS = ["Todos", "Pendiente", "En proceso", "Resuelto"];
-
-const NEXT_STATUS = {
-  "Pendiente": "En proceso",
-  "En proceso": "Resuelto",
-  "Resuelto": "Pendiente",
-};
+const STATUS_OPTIONS = ["Todos", "Nuevo", "En proceso", "Resuelto"];
+const AVAILABLE_STATUSES = ["Nuevo", "En proceso", "Resuelto"];
 
 export function Admin() {
   const { currentUser, logout } = useAuth();
@@ -84,15 +78,14 @@ export function Admin() {
     return () => unsubscribe();
   }, []);
 
-  async function handleStatusTransition(ticketId, currentStatus) {
-    const nextStatus = NEXT_STATUS[currentStatus] || "Pendiente";
+  async function handleStatusChange(ticketId, newStatus) {
     setUpdatingId(ticketId);
     setErrorMessage("");
 
     try {
       const ticketRef = doc(db, "reclamaciones", ticketId);
       await updateDoc(ticketRef, {
-        estado: nextStatus,
+        estado: newStatus,
       });
     } catch (error) {
       console.error("Error al actualizar estado:", error);
@@ -125,12 +118,13 @@ export function Admin() {
   }
 
   function renderStatusBadge(status) {
-    switch (status) {
-      case "Pendiente":
+    const normalizedStatus = status === "Pendiente" ? "Nuevo" : status;
+    switch (normalizedStatus) {
+      case "Nuevo":
         return (
-          <span className="status-badge status-pendiente">
+          <span className="status-badge status-nuevo">
             <Clock size={14} />
-            <span>Pendiente</span>
+            <span>Nuevo</span>
           </span>
         );
       case "En proceso":
@@ -148,7 +142,7 @@ export function Admin() {
           </span>
         );
       default:
-        return <span className="status-badge">{status || "Pendiente"}</span>;
+        return <span className="status-badge">{normalizedStatus || "Nuevo"}</span>;
     }
   }
 
@@ -157,7 +151,10 @@ export function Admin() {
     let result = tickets;
 
     if (filterStatus !== "Todos") {
-      result = result.filter((ticket) => ticket.estado === filterStatus);
+      result = result.filter((ticket) => {
+        const current = ticket.estado === "Pendiente" ? "Nuevo" : ticket.estado;
+        return current === filterStatus;
+      });
     }
 
     if (debouncedSearchTerm.trim()) {
@@ -176,7 +173,7 @@ export function Admin() {
   const counts = useMemo(() => {
     return {
       Todos: tickets.length,
-      Pendiente: tickets.filter((t) => t.estado === "Pendiente").length,
+      Nuevo: tickets.filter((t) => t.estado === "Nuevo" || t.estado === "Pendiente").length,
       "En proceso": tickets.filter((t) => t.estado === "En proceso").length,
       Resuelto: tickets.filter((t) => t.estado === "Resuelto").length,
     };
@@ -229,17 +226,20 @@ export function Admin() {
             <Filter size={16} />
             <span>Filtrar:</span>
           </div>
-          {STATUS_OPTIONS.map((status) => (
-            <button
-              key={status}
-              type="button"
-              className={`admin-filter-pill ${filterStatus === status ? "active" : ""}`}
-              onClick={() => setFilterStatus(status)}
-            >
-              {status}
-              <span className="admin-filter-count">{counts[status] || 0}</span>
-            </button>
-          ))}
+          {STATUS_OPTIONS.map((status) => {
+            const filterClass = status.toLowerCase().replace(/\s+/g, "-");
+            return (
+              <button
+                key={status}
+                type="button"
+                className={`admin-filter-pill filter-${filterClass} ${filterStatus === status ? "active" : ""}`}
+                onClick={() => setFilterStatus(status)}
+              >
+                {status}
+                <span className="admin-filter-count">{counts[status] || 0}</span>
+              </button>
+            );
+          })}
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "var(--bg)", border: "1px solid var(--border)", padding: "6px 12px", borderRadius: "8px" }}>
@@ -266,12 +266,15 @@ export function Admin() {
         </div>
       ) : (
         <div className="admin-tickets-grid">
-          {filteredTickets.map((ticket) => (
-            <article key={ticket.id} className="admin-ticket-card">
-              <div className="admin-ticket-top">
-                <span className="admin-ticket-radicado">{ticket.radicado || "S/R"}</span>
-                <span className="admin-ticket-type">{ticket.tipo || "Reclamo"}</span>
-              </div>
+          {filteredTickets.map((ticket) => {
+            const normalizedStatus = ticket.estado === "Pendiente" ? "Nuevo" : (ticket.estado || "Nuevo");
+            const statusClass = normalizedStatus.toLowerCase().replace(/\s+/g, "-");
+            return (
+              <article key={ticket.id} className={`admin-ticket-card status-${statusClass}`}>
+                <div className="admin-ticket-top">
+                  <span className="admin-ticket-radicado">{ticket.radicado || "S/R"}</span>
+                  <span className="admin-ticket-type">{ticket.tipo || "Reclamo"}</span>
+                </div>
 
               <div className="admin-ticket-info">
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -301,28 +304,28 @@ export function Admin() {
                   {renderStatusBadge(ticket.estado)}
                 </div>
 
-                <button
-                  type="button"
-                  className="admin-status-change-btn"
-                  onClick={() => handleStatusTransition(ticket.id, ticket.estado)}
-                  disabled={updatingId === ticket.id}
-                  style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
-                >
-                  {updatingId === ticket.id ? (
-                    <>
-                      <Loader2 size={14} className="animate-spin" />
-                      <span>Actualizando...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Avanzar a: {NEXT_STATUS[ticket.estado] || "Pendiente"}</span>
-                      <ArrowRight size={14} />
-                    </>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  {updatingId === ticket.id && (
+                    <Loader2 size={14} className="animate-spin" style={{ color: "var(--accent)" }} />
                   )}
-                </button>
+                  <select
+                    className="admin-status-select"
+                    value={ticket.estado === "Pendiente" ? "Nuevo" : (ticket.estado || "Nuevo")}
+                    onChange={(e) => handleStatusChange(ticket.id, e.target.value)}
+                    disabled={updatingId === ticket.id}
+                    aria-label="Cambiar estado del ticket"
+                  >
+                    {AVAILABLE_STATUSES.map((status) => (
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </article>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -339,16 +342,16 @@ export default Admin;
  *
  * Descripción General:
  * Vista interactiva de administración que sincroniza tickets en tiempo real con Firestore,
- * permite transiciones de estado ágiles y filtrado local sin recargar con iconos Lucide.
+ * permite cambiar estados mediante un selector directo y filtrado local sin recargar con iconos Lucide.
  *
  * Lógica Clave:
  * - onSnapshot: Suscripción en vivo a la colección 'reclamaciones' con limpieza al desmontar.
- * - Filtro Local (useState): Clasificación en memoria ('Todos', 'Pendiente', 'En proceso', 'Resuelto').
- * - updateDoc: Actualización atómica del campo 'estado' hacia el siguiente estado en el ciclo.
+ * - Filtro Local (useState): Clasificación en memoria ('Todos', 'Nuevo', 'En proceso', 'Resuelto').
+ * - updateDoc: Actualización atómica del campo 'estado' seleccionado directamente por el administrador.
  * - Formato de Fechas: Conversión segura de Timestamp de Firestore a formato legible en español.
  *
  * Dependencias Externas:
- * - lucide-react (ShieldCheck, LogOut, Clock, RefreshCw, CheckCircle2, Filter, Calendar, User, Mail, ArrowRight, Loader2, AlertCircle, Inbox, Home, MessageSquare)
+ * - lucide-react (ShieldCheck, LogOut, Clock, RefreshCw, CheckCircle2, Filter, Calendar, User, Mail, Loader2, AlertCircle, Inbox, Home, MessageSquare, Search)
  * - firebase/firestore (collection, onSnapshot, doc, updateDoc)
  * - react-router-dom (Link)
  * - src/firebase.js (db)

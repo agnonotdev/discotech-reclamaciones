@@ -74,7 +74,7 @@ export function ClaimForm() {
         email: email.trim(),
         tipo,
         mensaje: mensaje.trim(),
-        estado: "Pendiente",
+        estado: "Nuevo",
         createdAt: serverTimestamp(),
         radicado,
       };

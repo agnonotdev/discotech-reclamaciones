@@ -5,7 +5,9 @@
   --bg: #FAF6EF;             /* Fondo */
   --border: #DCD5C6;         /* Líneas / bordes */
   --code-bg: #F0E7FA;        /* Acento suave (fondos de código/campos) */
-  --accent: #6515BE;         /* Acento (marca) */
+  --accent: #6515BE;         /* Acento (marca/en proceso) */
+  --new-accent: #0284c7;         /* Acento (nuevos) */
+  --resolved-accent: #16a34a;         /* Acento (resueltos) */
   --accent-bg: rgba(101, 21, 190, 0.08);
   --accent-border: rgba(101, 21, 190, 0.4);
   --social-bg: rgba(220, 213, 198, 0.35);
@@ -41,6 +43,8 @@
     --border: #2C2826;
     --code-bg: #1E1724;
     --accent: #9B59E0;
+    --new-accent: #38bdf8;
+    --resolved-accent: #22c55e;
     --accent-bg: rgba(155, 89, 224, 0.15);
     --accent-border: rgba(155, 89, 224, 0.45);
     --social-bg: rgba(44, 40, 38, 0.5);
@@ -382,6 +386,7 @@ code {
   margin-bottom: 24px;
 }
 
+/* Filtros por estado */
 .admin-filter-pill {
   padding: 8px 16px;
   border-radius: 9999px;
@@ -399,9 +404,42 @@ code {
   color: var(--text-h);
 }
 
+.admin-filter-pill.filter-nuevo:hover:not(.active) {
+  border-color: var(--new-accent);
+  color: var(--new-accent);
+}
+
+.admin-filter-pill.filter-en-proceso:hover:not(.active) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.admin-filter-pill.filter-resuelto:hover:not(.active) {
+  border-color: var(--resolved-accent);
+  color: var(--resolved-accent);
+}
+
 .admin-filter-pill.active {
   background: var(--accent);
   border-color: var(--accent);
+  color: #fff;
+}
+
+.admin-filter-pill.filter-nuevo.active {
+  background: #0284c7;
+  border-color: var(--new-accent);
+  color: #fff;
+}
+
+.admin-filter-pill.filter-en-proceso.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.admin-filter-pill.filter-resuelto.active {
+  background: #16a34a;
+  border-color: var(--resolved-accent);
   color: #fff;
 }
 
@@ -424,17 +462,158 @@ code {
   gap: 16px;
 }
 
+/* Estructura Base de Ticket Card */
 .admin-ticket-card {
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 20px;
   box-shadow: var(--shadow);
-  transition: border-color 0.2s;
+  transition: all 0.2s ease;
 }
 
-.admin-ticket-card:hover {
-  border-color: var(--accent-border);
+/* 1. NUEVO: Azul celeste */
+.admin-ticket-card.status-nuevo {
+  background: rgba(14, 165, 233, 0.04);
+  border-color: rgba(14, 165, 233, 0.35);
+  pointer-events: none;
+}
+
+.admin-ticket-card.status-nuevo:hover {
+  border-color: #0ea5e9;
+  box-shadow: 0 4px 14px rgba(14, 165, 233, 0.12);
+}
+
+.admin-ticket-card.status-nuevo .admin-ticket-radicado {
+  color: #0284c7;
+  background: rgba(14, 165, 233, 0.12);
+  border: 1px solid rgba(14, 165, 233, 0.3);
+}
+
+.admin-ticket-card.status-nuevo .admin-ticket-type {
+  background: rgba(14, 165, 233, 0.1);
+  color: #0284c7;
+}
+
+.admin-ticket-card.status-nuevo .admin-ticket-message {
+  background: rgba(14, 165, 233, 0.05);
+  border: 1px solid rgba(14, 165, 233, 0.2);
+  color: var(--text-h);
+}
+
+.admin-ticket-card.status-nuevo .admin-ticket-message > div {
+  color: #0284c7;
+}
+
+.admin-ticket-card.status-nuevo .admin-ticket-actions {
+  border-top: 1px solid rgba(14, 165, 233, 0.25);
+}
+
+.admin-ticket-card.status-nuevo .admin-status-select {
+  background: rgba(14, 165, 233, 0.08);
+  border: 1px solid rgba(14, 165, 233, 0.4);
+  color: #0284c7;
+}
+
+.admin-ticket-card.status-nuevo .admin-status-select:focus {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.25);
+}
+
+/* 2. EN PROCESO: Morado */
+.admin-ticket-card.status-en-proceso {
+  background: rgba(101, 21, 190, 0.04);
+  border-color: rgba(101, 21, 190, 0.35);
+  pointer-events: none;
+}
+
+.admin-ticket-card.status-en-proceso:hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 14px rgba(101, 21, 190, 0.12);
+}
+
+.admin-ticket-card.status-en-proceso .admin-ticket-radicado {
+  color: var(--accent);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+}
+
+.admin-ticket-card.status-en-proceso .admin-ticket-type {
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+.admin-ticket-card.status-en-proceso .admin-ticket-message {
+  background: rgba(101, 21, 190, 0.05);
+  border: 1px solid rgba(101, 21, 190, 0.2);
+  color: var(--text-h);
+}
+
+.admin-ticket-card.status-en-proceso .admin-ticket-message > div {
+  color: var(--accent);
+}
+
+.admin-ticket-card.status-en-proceso .admin-ticket-actions {
+  border-top: 1px solid rgba(101, 21, 190, 0.25);
+}
+
+.admin-ticket-card.status-en-proceso .admin-status-select {
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+}
+
+.admin-ticket-card.status-en-proceso .admin-status-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-bg);
+}
+
+/* 3. RESUELTO: Verde */
+.admin-ticket-card.status-resuelto {
+  background: rgba(30, 142, 62, 0.04);
+  border-color: rgba(30, 142, 62, 0.35);
+  pointer-events: none;
+}
+
+.admin-ticket-card.status-resuelto:hover {
+  border-color: #16a34a;
+  box-shadow: 0 4px 14px rgba(30, 142, 62, 0.12);
+}
+
+.admin-ticket-card.status-resuelto .admin-ticket-radicado {
+  color: #16a34a;
+  background: rgba(30, 142, 62, 0.12);
+  border: 1px solid rgba(30, 142, 62, 0.3);
+}
+
+.admin-ticket-card.status-resuelto .admin-ticket-type {
+  background: rgba(30, 142, 62, 0.1);
+  color: #16a34a;
+}
+
+.admin-ticket-card.status-resuelto .admin-ticket-message {
+  background: rgba(30, 142, 62, 0.05);
+  border: 1px solid rgba(30, 142, 62, 0.2);
+  color: var(--text-h);
+}
+
+.admin-ticket-card.status-resuelto .admin-ticket-message > div {
+  color: #16a34a;
+}
+
+.admin-ticket-card.status-resuelto .admin-ticket-actions {
+  border-top: 1px solid rgba(30, 142, 62, 0.25);
+}
+
+.admin-ticket-card.status-resuelto .admin-status-select {
+  background: rgba(30, 142, 62, 0.08);
+  border: 1px solid rgba(30, 142, 62, 0.4);
+  color: #16a34a;
+}
+
+.admin-ticket-card.status-resuelto .admin-status-select:focus {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 2px rgba(30, 142, 62, 0.25);
 }
 
 .admin-ticket-top {
@@ -454,6 +633,7 @@ code {
   background: var(--accent-bg);
   padding: 4px 8px;
   border-radius: 6px;
+  pointer-events: all;
 }
 
 .admin-ticket-type {
@@ -506,12 +686,14 @@ code {
   border-radius: 9999px;
   font-size: 13px;
   font-weight: 600;
+  pointer-events: none;
 }
 
+.status-badge.status-nuevo,
 .status-badge.status-pendiente {
-  background: rgba(245, 158, 11, 0.12);
-  border: 1px solid rgba(245, 158, 11, 0.4);
-  color: #B45309;
+  background: rgba(14, 165, 233, 0.14);
+  border: 1px solid rgba(14, 165, 233, 0.4);
+  color: #0284c7;
 }
 
 .status-badge.status-en-proceso {
@@ -521,9 +703,38 @@ code {
 }
 
 .status-badge.status-resuelto {
-  background: rgba(30, 142, 62, 0.12);
+  background: rgba(30, 142, 62, 0.14);
   border: 1px solid rgba(30, 142, 62, 0.4);
-  color: var(--color-success);
+  color: #16a34a;
+}
+
+.admin-status-select {
+  padding: 6px 12px;
+  background: var(--social-bg);
+  border: 1px solid var(--border);
+  color: var(--text-h);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.admin-status-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-bg);
+}
+
+.admin-status-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-status-select option {
+  background: var(--bg);
+  color: var(--text-h);
 }
 
 .admin-status-change-btn {
@@ -570,3 +781,4 @@ code {
 .animate-spin {
   animation: spin 1s linear infinite;
 }
+
