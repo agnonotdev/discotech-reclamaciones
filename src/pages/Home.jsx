@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
 import { ShieldCheck, Lock } from "lucide-react";
 import { ClaimForm } from "../components/ClaimForm.jsx";
+import { BetaBadge } from "../components/BetaBadge.jsx";
 
 /**
- * Descripción: Página principal pública que presenta el libro de reclamaciones con iconos Lucide.
- * Requiere: Componente ClaimForm, react-router-dom y lucide-react.
- * Implementa: Vista pública para registro de quejas y reclamos con acceso a portal administrativo.
+ * Descripción: Página principal pública que presenta el libro de reclamaciones con iconos Lucide e insignia Beta.
+ * Requiere: Componentes ClaimForm y BetaBadge, react-router-dom y lucide-react.
+ * Implementa: Vista pública para registro de quejas y reclamos con acceso a portal administrativo e insignia de versión.
  */
 
 export function Home() {
@@ -33,12 +34,15 @@ export function Home() {
           <span>Admin</span>
         </Link>
 
-        {/* Título centrado con icono grande arriba */}
+        {/* Título centrado con icono grande arriba e insignia Beta */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", textAlign: "center", paddingTop: "8px" }}>
           <ShieldCheck size={48} style={{ color: "var(--accent)" }} />
-          <span style={{ color: "var(--text-h)", fontWeight: "600", fontSize: "20px" }}>
-            Plataforma Oficial de Reclamaciones
-          </span>
+          <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "8px", flexWrap: "wrap" }}>
+            <span style={{ color: "var(--text-h)", fontWeight: "600", fontSize: "20px" }}>
+              Plataforma Oficial de Reclamaciones
+            </span>
+            <BetaBadge />
+          </div>
         </div>
       </header>
       <ClaimForm />
@@ -57,11 +61,12 @@ export default Home;
  * Vista pública donde cualquier usuario puede radicar sus peticiones mediante el formulario.
  *
  * Lógica Clave:
- * - Renderiza el encabezado institucional con iconos y el formulario controlado ClaimForm.
+ * - Renderiza el encabezado institucional con iconos, insignia Beta reutilizable y el formulario controlado ClaimForm.
  *
  * Dependencias Externas:
  * - lucide-react (ShieldCheck, Lock)
  * - react-router-dom (Link)
  * - src/components/ClaimForm.jsx (ClaimForm)
+ * - src/components/BetaBadge.jsx (BetaBadge)
  *
  */

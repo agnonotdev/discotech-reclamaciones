@@ -864,3 +864,59 @@ code {
   color: var(--accent);
   text-decoration: none;
 }
+
+/* Insignia Beta Reutilizable */
+.beta-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  line-height: 1;
+  text-transform: uppercase;
+  user-select: none;
+  vertical-align: middle;
+  border-radius: 9999px;
+  transition: all 0.2s ease;
+}
+
+/* Variantes */
+.beta-badge--default {
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+}
+
+.beta-badge--outline {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+}
+
+.beta-badge--subtle {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  color: var(--text-h);
+}
+
+.beta-badge--filled {
+  background: var(--accent);
+  border: 1px solid transparent;
+  color: #ffffff;
+}
+
+/* Tamaños */
+.beta-badge--sm {
+  font-size: 11px;
+  padding: 2px 8px;
+}
+
+.beta-badge--md {
+  font-size: 12px;
+  padding: 4px 10px;
+}
+
+.beta-badge--lg {
+  font-size: 14px;
+  padding: 6px 14px;
+}
