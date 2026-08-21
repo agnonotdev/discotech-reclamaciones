@@ -1,20 +1,19 @@
-:root {
-  /* Paleta de marca */
-  --text: #6B6B6B;           /* Texto secundario */
-  --text-h: #161616;         /* Texto principal */
-  --bg: #FAF6EF;             /* Fondo */
-  --border: #DCD5C6;         /* Líneas / bordes */
-  --code-bg: #F0E7FA;        /* Acento suave (fondos de código/campos) */
-  --accent: #6515BE;         /* Acento (marca/en proceso) */
-  --new-accent: #0284c7;         /* Acento (nuevos) */
-  --resolved-accent: #16a34a;         /* Acento (resueltos) */
-  --accent-bg: rgba(101, 21, 190, 0.08);
-  --accent-border: rgba(101, 21, 190, 0.4);
+:root, [data-theme="claro"] {
+  /* Paleta original Claro */
+  --text: #6B6B6B;
+  --text-h: #161616;
+  --bg: #FAF6EF;
+  --border: #DCD5C6;
+  --code-bg: #F0E7FA;
+  --accent: #6515BE;
+  --new-accent: #0284c7;
+  --resolved-accent: #16a34a;
+  --accent-bg: color-mix(in srgb, var(--accent) 0.08, transparent);
+  --accent-border: color-mix(in srgb, var(--accent) 0.4, transparent);
   --social-bg: rgba(220, 213, 198, 0.35);
-  --color-danger: #B3261E;   /* Peligro / requerido */
-  --color-success: #1E8E3E;  /* Confirmación */
-  --shadow:
-    rgba(0, 0, 0, 0.07) 0 10px 15px -3px, rgba(0, 0, 0, 0.04) 0 4px 6px -2px;
+  --color-danger: #B3261E;
+  --color-success: #1E8E3E;
+  --shadow: rgba(0, 0, 0, 0.07) 0 10px 15px -3px, rgba(0, 0, 0, 0.04) 0 4px 6px -2px;
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
@@ -29,14 +28,65 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
 
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
+[data-theme="oscuro"] {
+  /* Paleta original Oscuro */
+  --text: #9B9B9B;
+  --text-h: #F5F0E8;
+  --bg: #161616;
+  --border: #2C2826;
+  --code-bg: #1E1724;
+  --accent: #9B59E0;
+  --new-accent: #38bdf8;
+  --resolved-accent: #22c55e;
+  --accent-bg: color-mix(in srgb, var(--accent) 0.15, transparent);
+  --accent-border: color-mix(in srgb, var(--accent) 0.45, transparent);
+  --social-bg: rgba(44, 40, 38, 0.5);
+  --color-danger: #CF6679;
+  --color-success: #4CAF7B;
+  --shadow: rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+}
+
+[data-theme="solarized-light"] {
+  /* Paleta Solarized Light (Alto Contraste) */
+  --text: #586e75;
+  --text-h: #002b36;
+  --bg: #fdf6e3;
+  --border: #eee8d5;
+  --code-bg: #eee8d5;
+  --accent: #268bd2;
+  --new-accent: #228078;
+  --resolved-accent: #6b7a00;
+  --accent-bg: color-mix(in srgb, var(--accent) 0.08, transparent);
+  --accent-border: color-mix(in srgb, var(--accent) 0.4, transparent);
+  --social-bg: rgba(238, 232, 213, 0.5);
+  --color-danger: #cc2e2b;
+  --color-success: #6b7a00;
+  --shadow: rgba(0, 43, 54, 0.07) 0 10px 15px -3px, rgba(0, 43, 54, 0.04) 0 4px 6px -2px;
+}
+
+[data-theme="solarized-dark"] {
+  /* Paleta Solarized Dark (Alto Contraste) */
+  --text: #93a1a1;
+  --text-h: #fdf6e3;
+  --bg: #002b36;
+  --border: #073642;
+  --code-bg: #073642;
+  --accent: #45a1e6;
+  --new-accent: #3ccac0;
+  --resolved-accent: #a1b800;
+  --accent-bg: color-mix(in srgb, var(--accent) 0.15, transparent);
+  --accent-border: color-mix(in srgb, var(--accent) 0.45, transparent);
+  --social-bg: rgba(7, 54, 66, 0.5);
+  --color-danger: #f55b58;
+  --color-success: #a1b800;
+  --shadow: rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="claro"]):not([data-theme="solarized-light"]):not([data-theme="solarized-dark"]) {
+    /* Paleta original Oscuro por defecto en modo dark system */
     --text: #9B9B9B;
     --text-h: #F5F0E8;
     --bg: #161616;
@@ -45,16 +95,28 @@
     --accent: #9B59E0;
     --new-accent: #38bdf8;
     --resolved-accent: #22c55e;
-    --accent-bg: rgba(155, 89, 224, 0.15);
-    --accent-border: rgba(155, 89, 224, 0.45);
+    --accent-bg: color-mix(in srgb, var(--accent) 0.15, transparent);
+    --accent-border: color-mix(in srgb, var(--accent) 0.45, transparent);
     --social-bg: rgba(44, 40, 38, 0.5);
     --color-danger: #CF6679;
     --color-success: #4CAF7B;
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+    --shadow: rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
   }
+}
 
-  #social .button-icon {
+@media (max-width: 1024px) {
+  :root {
+    font-size: 16px;
+  }
+}
+
+[data-theme="oscuro"] #social .button-icon,
+[data-theme="solarized-dark"] #social .button-icon {
+  filter: invert(1) brightness(2);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="claro"]):not([data-theme="solarized-light"]) #social .button-icon {
     filter: invert(1) brightness(2);
   }
 }
@@ -183,8 +245,8 @@ code {
 .claim-error-alert {
   padding: 12px 16px;
   margin-bottom: 18px;
-  background: rgba(179, 38, 30, 0.08);
-  border: 1px solid rgba(179, 38, 30, 0.35);
+  background: color-mix(in srgb, var(--color-danger) 0.08, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-danger) 0.35, transparent);
   color: var(--color-danger);
   border-radius: 8px;
   font-size: 14px;
@@ -221,8 +283,8 @@ code {
 .claim-success-badge {
   display: inline-block;
   padding: 6px 14px;
-  background: rgba(30, 142, 62, 0.12);
-  border: 1px solid rgba(30, 142, 62, 0.4);
+  background: color-mix(in srgb, var(--resolved-accent) 0.12, transparent);
+  border: 1px solid color-mix(in srgb, var(--resolved-accent) 0.4, transparent);
   color: var(--color-success);
   border-radius: 9999px;
   font-weight: 600;
@@ -275,8 +337,8 @@ code {
 }
 
 .claim-copy-button.copied {
-  background: rgba(30, 142, 62, 0.12);
-  border-color: rgba(30, 142, 62, 0.4);
+  background: color-mix(in srgb, var(--resolved-accent) 0.12, transparent);
+  border-color: color-mix(in srgb, var(--resolved-accent) 0.4, transparent);
   color: var(--color-success);
 }
 
@@ -426,7 +488,7 @@ code {
 }
 
 .admin-filter-pill.filter-nuevo.active {
-  background: #0284c7;
+  background: var(--new-accent);
   border-color: var(--new-accent);
   color: #fff;
 }
@@ -438,7 +500,7 @@ code {
 }
 
 .admin-filter-pill.filter-resuelto.active {
-  background: #16a34a;
+  background: var(--resolved-accent);
   border-color: var(--resolved-accent);
   color: #fff;
 }
@@ -474,62 +536,62 @@ code {
 
 /* 1. NUEVO: Azul celeste */
 .admin-ticket-card.status-nuevo {
-  background: rgba(14, 165, 233, 0.04);
-  border-color: rgba(14, 165, 233, 0.35);
+  background: color-mix(in srgb, var(--new-accent) 0.04, transparent);
+  border-color: color-mix(in srgb, var(--new-accent) 0.35, transparent);
   pointer-events: none;
 }
 
 .admin-ticket-card.status-nuevo:hover {
-  border-color: #0ea5e9;
-  box-shadow: 0 4px 14px rgba(14, 165, 233, 0.12);
+  border-color: var(--new-accent);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--new-accent) 0.12, transparent);
 }
 
 .admin-ticket-card.status-nuevo .admin-ticket-radicado {
-  color: #0284c7;
-  background: rgba(14, 165, 233, 0.12);
-  border: 1px solid rgba(14, 165, 233, 0.3);
+  color: var(--new-accent);
+  background: color-mix(in srgb, var(--new-accent) 0.12, transparent);
+  border: 1px solid color-mix(in srgb, var(--new-accent) 0.3, transparent);
 }
 
 .admin-ticket-card.status-nuevo .admin-ticket-type {
-  background: rgba(14, 165, 233, 0.1);
-  color: #0284c7;
+  background: color-mix(in srgb, var(--new-accent) 0.1, transparent);
+  color: var(--new-accent);
 }
 
 .admin-ticket-card.status-nuevo .admin-ticket-message {
-  background: rgba(14, 165, 233, 0.05);
-  border: 1px solid rgba(14, 165, 233, 0.2);
+  background: color-mix(in srgb, var(--new-accent) 0.05, transparent);
+  border: 1px solid color-mix(in srgb, var(--new-accent) 0.2, transparent);
   color: var(--text-h);
 }
 
 .admin-ticket-card.status-nuevo .admin-ticket-message > div {
-  color: #0284c7;
+  color: var(--new-accent);
 }
 
 .admin-ticket-card.status-nuevo .admin-ticket-actions {
-  border-top: 1px solid rgba(14, 165, 233, 0.25);
+  border-top: 1px solid color-mix(in srgb, var(--new-accent) 0.25, transparent);
 }
 
 .admin-ticket-card.status-nuevo .admin-status-select {
-  background: rgba(14, 165, 233, 0.08);
-  border: 1px solid rgba(14, 165, 233, 0.4);
-  color: #0284c7;
+  background: color-mix(in srgb, var(--new-accent) 0.08, transparent);
+  border: 1px solid color-mix(in srgb, var(--new-accent) 0.4, transparent);
+  color: var(--new-accent);
 }
 
 .admin-ticket-card.status-nuevo .admin-status-select:focus {
-  border-color: #0284c7;
-  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.25);
+  border-color: var(--new-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--new-accent) 0.25, transparent);
 }
 
 /* 2. EN PROCESO: Morado */
 .admin-ticket-card.status-en-proceso {
-  background: rgba(101, 21, 190, 0.04);
-  border-color: rgba(101, 21, 190, 0.35);
+  background: color-mix(in srgb, var(--accent) 0.04, transparent);
+  border-color: color-mix(in srgb, var(--accent) 0.35, transparent);
   pointer-events: none;
 }
 
 .admin-ticket-card.status-en-proceso:hover {
   border-color: var(--accent);
-  box-shadow: 0 4px 14px rgba(101, 21, 190, 0.12);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 0.12, transparent);
 }
 
 .admin-ticket-card.status-en-proceso .admin-ticket-radicado {
@@ -544,8 +606,8 @@ code {
 }
 
 .admin-ticket-card.status-en-proceso .admin-ticket-message {
-  background: rgba(101, 21, 190, 0.05);
-  border: 1px solid rgba(101, 21, 190, 0.2);
+  background: color-mix(in srgb, var(--accent) 0.05, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 0.2, transparent);
   color: var(--text-h);
 }
 
@@ -554,7 +616,7 @@ code {
 }
 
 .admin-ticket-card.status-en-proceso .admin-ticket-actions {
-  border-top: 1px solid rgba(101, 21, 190, 0.25);
+  border-top: 1px solid color-mix(in srgb, var(--accent) 0.25, transparent);
 }
 
 .admin-ticket-card.status-en-proceso .admin-status-select {
@@ -570,50 +632,50 @@ code {
 
 /* 3. RESUELTO: Verde */
 .admin-ticket-card.status-resuelto {
-  background: rgba(30, 142, 62, 0.04);
-  border-color: rgba(30, 142, 62, 0.35);
+  background: color-mix(in srgb, var(--resolved-accent) 0.04, transparent);
+  border-color: color-mix(in srgb, var(--resolved-accent) 0.35, transparent);
   pointer-events: none;
 }
 
 .admin-ticket-card.status-resuelto:hover {
-  border-color: #16a34a;
-  box-shadow: 0 4px 14px rgba(30, 142, 62, 0.12);
+  border-color: var(--resolved-accent);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--resolved-accent) 0.12, transparent);
 }
 
 .admin-ticket-card.status-resuelto .admin-ticket-radicado {
-  color: #16a34a;
-  background: rgba(30, 142, 62, 0.12);
-  border: 1px solid rgba(30, 142, 62, 0.3);
+  color: var(--resolved-accent);
+  background: color-mix(in srgb, var(--resolved-accent) 0.12, transparent);
+  border: 1px solid color-mix(in srgb, var(--resolved-accent) 0.3, transparent);
 }
 
 .admin-ticket-card.status-resuelto .admin-ticket-type {
-  background: rgba(30, 142, 62, 0.1);
-  color: #16a34a;
+  background: color-mix(in srgb, var(--resolved-accent) 0.1, transparent);
+  color: var(--resolved-accent);
 }
 
 .admin-ticket-card.status-resuelto .admin-ticket-message {
-  background: rgba(30, 142, 62, 0.05);
-  border: 1px solid rgba(30, 142, 62, 0.2);
+  background: color-mix(in srgb, var(--resolved-accent) 0.05, transparent);
+  border: 1px solid color-mix(in srgb, var(--resolved-accent) 0.2, transparent);
   color: var(--text-h);
 }
 
 .admin-ticket-card.status-resuelto .admin-ticket-message > div {
-  color: #16a34a;
+  color: var(--resolved-accent);
 }
 
 .admin-ticket-card.status-resuelto .admin-ticket-actions {
-  border-top: 1px solid rgba(30, 142, 62, 0.25);
+  border-top: 1px solid color-mix(in srgb, var(--resolved-accent) 0.25, transparent);
 }
 
 .admin-ticket-card.status-resuelto .admin-status-select {
-  background: rgba(30, 142, 62, 0.08);
-  border: 1px solid rgba(30, 142, 62, 0.4);
-  color: #16a34a;
+  background: color-mix(in srgb, var(--resolved-accent) 0.08, transparent);
+  border: 1px solid color-mix(in srgb, var(--resolved-accent) 0.4, transparent);
+  color: var(--resolved-accent);
 }
 
 .admin-ticket-card.status-resuelto .admin-status-select:focus {
-  border-color: #16a34a;
-  box-shadow: 0 0 0 2px rgba(30, 142, 62, 0.25);
+  border-color: var(--resolved-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--resolved-accent) 0.25, transparent);
 }
 
 .admin-ticket-top {
@@ -691,9 +753,9 @@ code {
 
 .status-badge.status-nuevo,
 .status-badge.status-pendiente {
-  background: rgba(14, 165, 233, 0.14);
-  border: 1px solid rgba(14, 165, 233, 0.4);
-  color: #0284c7;
+  background: color-mix(in srgb, var(--new-accent) 0.14, transparent);
+  border: 1px solid color-mix(in srgb, var(--new-accent) 0.4, transparent);
+  color: var(--new-accent);
 }
 
 .status-badge.status-en-proceso {
@@ -703,9 +765,9 @@ code {
 }
 
 .status-badge.status-resuelto {
-  background: rgba(30, 142, 62, 0.14);
-  border: 1px solid rgba(30, 142, 62, 0.4);
-  color: #16a34a;
+  background: color-mix(in srgb, var(--resolved-accent) 0.14, transparent);
+  border: 1px solid color-mix(in srgb, var(--resolved-accent) 0.4, transparent);
+  color: var(--resolved-accent);
 }
 
 .admin-status-select {

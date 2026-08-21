@@ -1,3 +1,4 @@
+import { ThemeProvider } from "./context/ThemeContext.jsx";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import { ProtectedRoute } from "./components/ProtectedRoute.jsx";
@@ -5,6 +6,7 @@ import { Home } from "./pages/Home.jsx";
 import { Login } from "./pages/Login.jsx";
 import { Admin } from "./pages/Admin.jsx";
 import { Footer } from "./components/Footer.jsx";
+import { ThemeToggle } from "./components/ThemeToggle.jsx";
 
 /**
  * Descripción: Componente raíz de la aplicación con configuración de rutas y proveedores globales.
@@ -14,26 +16,29 @@ import { Footer } from "./components/Footer.jsx";
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/admin/login" element={<Login />} />
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute>
-                  <Admin />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-          <Footer />
-        </div>
-      </BrowserRouter>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+            <ThemeToggle />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/admin/login" element={<Login />} />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute>
+                    <Admin />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+            <Footer />
+          </div>
+        </BrowserRouter>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
