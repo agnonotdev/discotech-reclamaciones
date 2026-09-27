@@ -344,11 +344,20 @@ code {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 16px;
   padding-bottom: 20px;
   border-bottom: 1px solid var(--border);
   margin-bottom: 24px;
+}
+
+/* Constrain the BenchoSearch frame height so it sits flush inline
+   with the rest of the header controls. The frame's job is to give
+   the magnet room — 44px is enough for the needle to move without
+   pushing the header line-height out. Inline style on the component
+   sets --frameh; this local override wins via specificity. */
+.admin-header .sek {
+  height: 44px !important;
 }
 
 .admin-header h1 {
@@ -469,14 +478,33 @@ code {
   border-radius: 10px;
   padding: 20px;
   box-shadow: var(--shadow);
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
+}
+
+.admin-ticket-card.admin-ticket-soft-deleted {
+  border-style: dashed;
+  pointer-events: auto;
+}
+
+.admin-ticket-card.admin-ticket-soft-deleted .admin-ticket-top,
+.admin-ticket-card.admin-ticket-soft-deleted .admin-ticket-info,
+.admin-ticket-card.admin-ticket-soft-deleted .admin-ticket-message,
+.admin-ticket-card.admin-ticket-soft-deleted .status-badge,
+.admin-ticket-card.admin-ticket-soft-deleted .admin-status-select {
+  opacity: 0.45;
+  filter: grayscale(0.6);
+  transition: opacity 0.25s ease, filter 0.25s ease;
+}
+
+.admin-ticket-card.admin-ticket-soft-deleted .bencho-confirm-well {
+  opacity: 1 !important;
+  filter: none !important;
 }
 
 /* 1. NUEVO: Azul celeste */
 .admin-ticket-card.status-nuevo {
   background: rgba(14, 165, 233, 0.04);
   border-color: rgba(14, 165, 233, 0.35);
-  pointer-events: none;
 }
 
 .admin-ticket-card.status-nuevo:hover {
@@ -524,7 +552,6 @@ code {
 .admin-ticket-card.status-en-proceso {
   background: rgba(101, 21, 190, 0.04);
   border-color: rgba(101, 21, 190, 0.35);
-  pointer-events: none;
 }
 
 .admin-ticket-card.status-en-proceso:hover {
@@ -572,7 +599,6 @@ code {
 .admin-ticket-card.status-resuelto {
   background: rgba(30, 142, 62, 0.04);
   border-color: rgba(30, 142, 62, 0.35);
-  pointer-events: none;
 }
 
 .admin-ticket-card.status-resuelto:hover {
@@ -633,7 +659,6 @@ code {
   background: var(--accent-bg);
   padding: 4px 8px;
   border-radius: 6px;
-  pointer-events: all;
 }
 
 .admin-ticket-type {

@@ -1,6 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { collection, onSnapshot, doc, updateDoc } from "firebase/firestore";
+import { collection, onSnapshot, doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { InlineConfirm } from "../components/InlineConfirm.jsx";
+import { IconBar } from "../components/IconBar.jsx";
+import { Search as BenchoSearch } from "../components/Search.jsx";
 import {
   ShieldCheck,
   LogOut,
@@ -36,9 +39,39 @@ export function Admin() {
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState("Todos");
   const [updatingId, setUpdatingId] = useState(null);
+  const [softDeletedIds, setSoftDeletedIds] = useState(new Set());
   const [errorMessage, setErrorMessage] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+
+  function handleSoftDelete(ticketId) {
+    setSoftDeletedIds((prev) => new Set([...prev, ticketId]));
+  }
+
+  function handleUndoDelete(ticketId) {
+    setSoftDeletedIds((prev) => {
+      const next = new Set(prev);
+      next.delete(ticketId);
+      return next;
+    });
+  }
+
+  async function handleHardDelete(ticketId) {
+    try {
+      const ticketRef = doc(db, "reclamaciones", ticketId);
+      await deleteDoc(ticketRef);
+      setSoftDeletedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(ticketId);
+        return next;
+      });
+    } catch (error) {
+      console.error("Error al eliminar ticket:", error);
+      setErrorMessage("No se pudo eliminar el ticket.");
+      // Si falla, revertimos el soft delete
+      handleUndoDelete(ticketId);
+    }
+  }
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -193,6 +226,12 @@ export function Admin() {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <BenchoSearch
+            spring={60}
+            give={50}
+            width={190}
+            onSearch={(val) => setSearchTerm(val)}
+          />
           <Link
             to="/"
             style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: "var(--text)", textDecoration: "none", fontSize: "14px", fontWeight: "500" }}
@@ -219,39 +258,45 @@ export function Admin() {
         </div>
       )}
 
-      {/* Barra de Filtros de Estado y Buscador */}
+      {/* Barra de Filtros de Estado con Bencho UI IconBar */}
       <div className="admin-filter-bar" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "16px", marginBottom: "20px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--text)", fontSize: "14px", marginRight: "4px" }}>
-            <Filter size={16} />
-            <span>Filtrar:</span>
-          </div>
-          {STATUS_OPTIONS.map((status) => {
-            const filterClass = status.toLowerCase().replace(/\s+/g, "-");
-            return (
-              <button
-                key={status}
-                type="button"
-                className={`admin-filter-pill filter-${filterClass} ${filterStatus === status ? "active" : ""}`}
-                onClick={() => setFilterStatus(status)}
-              >
-                {status}
-                <span className="admin-filter-count">{counts[status] || 0}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "var(--bg)", border: "1px solid var(--border)", padding: "6px 12px", borderRadius: "8px" }}>
-          <Search size={16} style={{ color: "var(--text)" }} />
-          <input
-            type="text"
-            placeholder="Buscar..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ border: "none", background: "transparent", outline: "none", color: "var(--text-h)", width: "200px" }}
-          />
-        </div>
+        <IconBar
+          items={[
+            {
+              key: "Todos",
+              label: "Todos",
+              Icon: Inbox,
+              count: counts["Todos"] || 0,
+              color: "var(--accent)",
+            },
+            {
+              key: "Nuevo",
+              label: "Nuevas",
+              Icon: Clock,
+              count: counts["Nuevo"] || 0,
+              color: "var(--new-accent, #0284c7)",
+            },
+            {
+              key: "En proceso",
+              label: "En proceso",
+              Icon: RefreshCw,
+              count: counts["En proceso"] || 0,
+              color: "var(--accent, #6515be)",
+            },
+            {
+              key: "Resuelto",
+              label: "Resueltas",
+              Icon: CheckCircle2,
+              count: counts["Resuelto"] || 0,
+              color: "var(--resolved-accent, #16a34a)",
+            },
+          ]}
+          value={filterStatus}
+          onChange={(newStatus) => setFilterStatus(newStatus)}
+          speed={50}
+          bounce={55}
+          dilate={100}
+        />
       </div>
 
       {loading ? (
@@ -269,8 +314,12 @@ export function Admin() {
           {filteredTickets.map((ticket) => {
             const normalizedStatus = ticket.estado === "Pendiente" ? "Nuevo" : (ticket.estado || "Nuevo");
             const statusClass = normalizedStatus.toLowerCase().replace(/\s+/g, "-");
+            const isSoftDeleted = softDeletedIds.has(ticket.id);
             return (
-              <article key={ticket.id} className={`admin-ticket-card status-${statusClass}`}>
+              <article
+                key={ticket.id}
+                className={`admin-ticket-card status-${statusClass} ${isSoftDeleted ? "admin-ticket-soft-deleted" : ""}`}
+              >
                 <div className="admin-ticket-top">
                   <span className="admin-ticket-radicado">{ticket.radicado || "S/R"}</span>
                   <span className="admin-ticket-type">{ticket.tipo || "Reclamo"}</span>
@@ -300,8 +349,17 @@ export function Admin() {
               </div>
 
               <div className="admin-ticket-actions">
-                <div>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
                   {renderStatusBadge(ticket.estado)}
+                  <InlineConfirm
+                    corner={22}
+                    iconOnly={true}
+                    duration={4000}
+                    label="Eliminar ticket"
+                    onDeleteStart={() => handleSoftDelete(ticket.id)}
+                    onUndo={() => handleUndoDelete(ticket.id)}
+                    onConfirm={() => handleHardDelete(ticket.id)}
+                  />
                 </div>
 
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -312,7 +370,7 @@ export function Admin() {
                     className="admin-status-select"
                     value={ticket.estado === "Pendiente" ? "Nuevo" : (ticket.estado || "Nuevo")}
                     onChange={(e) => handleStatusChange(ticket.id, e.target.value)}
-                    disabled={updatingId === ticket.id}
+                    disabled={updatingId === ticket.id || isSoftDeleted}
                     aria-label="Cambiar estado del ticket"
                   >
                     {AVAILABLE_STATUSES.map((status) => (

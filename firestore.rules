@@ -11,16 +11,14 @@ service cloud.firestore {
     }
 
     match /reclamaciones/{ticketId} {
-      allow create: if request.resource.data.keys().hasAll(['nombre', 'email', 'tipo', 'mensaje', 'estado', 'createdAt'])
+      allow create: if request.resource.data.keys().hasAll(['nombre', 'email', 'tipo', 'mensaje', 'estado', 'createdAt', 'radicado'])
                     && request.resource.data.nombre is string
                     && request.resource.data.email is string
-                    && request.resource.data.estado == 'Pendiente';
+                    && (request.resource.data.estado == 'Nuevo' || request.resource.data.estado == 'Pendiente');
 
       // Se valida contra la colección admins en vez de un correo fijo
-      allow read, update: if request.auth != null
-                           && exists(/databases/$(database)/documents/admins/$(request.auth.token.email));
-
-      allow delete: if false;
+      allow read, update, delete: if request.auth != null
+                                   && exists(/databases/$(database)/documents/admins/$(request.auth.token.email));
     }
   }
 }

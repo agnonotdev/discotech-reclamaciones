@@ -9,7 +9,7 @@ import {
   Send,
   Loader2,
   CheckCircle2,
-  RotateCcw,
+  Home,
   AlertCircle,
   Copy,
   Check,
@@ -79,18 +79,22 @@ export function ClaimForm() {
         radicado,
       };
 
-      await addDoc(collection(db, "reclamaciones"), claimData);
-      setGeneratedRadicado(radicado);
+      const docRef = await addDoc(collection(db, "reclamaciones"), claimData);
+      const serverResponse = {
+        ok: true,
+        id: docRef.id,
+        radicado: claimData.radicado,
+        estado: claimData.estado,
+      };
+      setGeneratedRadicado(serverResponse.radicado);
       setIsCopied(false);
       setNombre("");
       setEmail("");
       setTipo("Reclamo");
       setMensaje("");
     } catch (error) {
-      setErrorMessage(
-        error,
-        "Ocurrió un error al enviar tu solicitud. Intenta nuevamente.",
-      );
+      console.error("Error al registrar la reclamación:", error);
+      setErrorMessage("Ocurrió un error al enviar tu solicitud. Intenta nuevamente.");
     } finally {
       setIsSubmitting(false);
     }
@@ -133,46 +137,58 @@ export function ClaimForm() {
           />
           ¡Solicitud Registrada con Éxito!
         </div>
-        <h2>Número de Radicado:</h2>
-        <div className="claim-radicado-wrapper">
-          <div className="claim-radicado-code">{generatedRadicado}</div>
+        <h2>Confirmación de Registro Exitoso</h2>
+        <p style={{ marginTop: "8px", color: "var(--text)" }}>
+          Tu reclamación ha sido radicada correctamente en el sistema.
+        </p>
+
+        <div style={{ marginTop: "20px" }}>
+          <span style={{ fontSize: "14px", fontWeight: "600", color: "var(--text-h)" }}>
+            Número de radicado:
+          </span>
+          <div className="claim-radicado-wrapper">
+            <div className="claim-radicado-code">{generatedRadicado}</div>
+            <button
+              type="button"
+              className={`claim-copy-button ${isCopied ? "copied" : ""}`}
+              onClick={handleCopyRadicado}
+              aria-label="Copiar número de radicado"
+            >
+              {isCopied ? (
+                <>
+                  <Check size={16} />
+                  <span>¡Copiado!</span>
+                </>
+              ) : (
+                <>
+                  <Copy size={16} />
+                  <span>Copiar radicado</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
+        <p style={{ fontSize: "14px", color: "var(--text)" }}>
+          Conserva este radicado para hacer seguimiento o consultar el estado de tu trámite en cualquier momento.
+        </p>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "24px" }}>
           <button
             type="button"
-            className={`claim-copy-button ${isCopied ? "copied" : ""}`}
-            onClick={handleCopyRadicado}
+            className="claim-button"
+            onClick={handleReset}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+            }}
           >
-            {isCopied ? (
-              <>
-                <Check size={16} />
-                <span>¡Copiado!</span>
-              </>
-            ) : (
-              <>
-                <Copy size={16} />
-                <span>Copiar Radicado</span>
-              </>
-            )}
+            <Home size={18} />
+            <span>Volver al inicio</span>
           </button>
         </div>
-        <p>
-          Guarda este código para consultar el estado de tu trámite en cualquier
-          momento.
-        </p>
-        <button
-          type="button"
-          className="claim-button"
-          onClick={handleReset}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "8px",
-            marginTop: "16px",
-          }}
-        >
-          <RotateCcw size={18} />
-          Registrar otra solicitud
-        </button>
       </div>
     );
   }
