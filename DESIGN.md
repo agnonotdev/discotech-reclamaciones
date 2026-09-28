@@ -61,7 +61,7 @@
 > Nota: la notación tipo `bg-*`, `text-*`, `border-*`, `shadow-*`, `backdrop-blur-*` y `animate-*` en este documento define intención visual de diseño. La implementación vinculante en este proyecto se realiza con clases CSS reales y variables (`--*`) en hojas globales y de componente.
 
 ### 2.1 Backgrounds & Superficies
-| Nivel de Superficie | Rol / Uso | Clase Tailwind (Light Mode) | Clase Tailwind (Dark Mode) |
+| Nivel de Superficie | Rol / Uso | Referencia visual (Light Mode) | Referencia visual (Dark Mode) |
 | :--- | :--- | :--- | :--- |
 | **Canvas Base** | Fondo principal de la app | `bg-[#FAF6EF]` | `dark:bg-[#161616]` |
 | **Surface 1** | Tarjetas de tickets, Formulario base | `bg-[#FAF6EF]` o `bg-white` | `dark:bg-[#1C1C1C]` |
@@ -75,7 +75,7 @@
   * **Mono (Radicados y Código):** `font-mono` (`ui-monospace`, `'SFMono-Regular'`, `'Consolas'`, `monospace`)
 
 * **Escala de Jerarquía Tipográfica:**
-| Nivel | Clases Tailwind Requeridas | Tamaño / Interlineado | Peso |
+| Nivel | Patrón de estilo de referencia | Tamaño / Interlineado | Peso |
 | :--- | :--- | :--- | :--- |
 | **Display H1** | `text-3xl lg:text-5xl tracking-tight` | `36px/48px` - `56px/64px` | `font-medium` (500) |
 | **Section H2** | `text-xl lg:text-2xl tracking-tight` | `20px/28px` - `24px/32px` | `font-semibold` (600) |
