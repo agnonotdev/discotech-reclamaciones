@@ -12,7 +12,7 @@
   1. **Consumidores B2C / Usuarios Finales:** Registran reclamos y consultan el estado mediante radicado único con interfaces simples y accesibles.
   2. **Operadores Administrativos & Equipo Legal:** Gestionan tickets, modifican estados, aplican filtros y buscan solicitudes en un panel de alta eficiencia.
 * **Identidad Visual / Vibe:** **Minimalismo Editorial & Warm Craft** (inspirado en estética *Linear / Warm Editorial*), combinando la elegancia de superficies cálidas/neutras, tipografía refinada, bordes estructurados y resaltados con acentos morados, azules y verdes funcionales.
-* **Stack de Interfaz:** React 19, Vite, React Router DOM v7, Tailwind CSS (Sintaxis de Utility Tokens), Lucide Icons (`lucide-react`).
+* **Stack de Interfaz:** React 19, Vite, React Router DOM v7, CSS global/de componente con variables personalizadas y transiciones/animaciones CSS (ver `src/index.css`, `src/App.css`, `src/components/*.css`), Lucide Icons (`lucide-react`).
 * **Tema Base:** Dual Mode nativo (Light mode por defecto basado en `#FAF6EF` / Dark mode estructurado en `#161616` mediante `prefers-color-scheme` o selector `.dark`).
 
 ---
@@ -56,7 +56,9 @@
 
 ---
 
-## 2. DICCIONARIO DE TOKENS (Sintaxis Tailwind CSS)
+## 2. DICCIONARIO DE TOKENS (Referencia de estilos CSS del proyecto)
+
+> Nota: la notación tipo `bg-*`, `text-*`, `border-*`, `shadow-*`, `backdrop-blur-*` y `animate-*` en este documento define intención visual de diseño. La implementación vinculante en este proyecto se realiza con clases CSS reales y variables (`--*`) en hojas globales y de componente.
 
 ### 2.1 Backgrounds & Superficies
 | Nivel de Superficie | Rol / Uso | Clase Tailwind (Light Mode) | Clase Tailwind (Dark Mode) |
@@ -196,7 +198,7 @@ A fin de garantizar la mantenibilidad, consistencia visual y rendimiento de la b
 
 1. **PROHIBICIÓN DE ESTILOS EN LÍNEA Y CLASES ARBITRARIAS:**
    * 🚫 **PROHIBIDO** el uso del atributo `style={{ ... }}` salvo para valores dinámicos calculados en tiempo de ejecución que no puedan representarse en CSS (ej. posiciones de coordenadas en gráficos o canvas).
-   * 🚫 **PROHIBIDO** el uso de clases arbitrarias ad-hoc de Tailwind como `h-[37px]`, `w-[213px]`, `bg-[#123456]` o `p-[13px]`. Se deben utilizar **exclusivamente** la escala de espaciado estándar del sistema (`p-3`, `p-4`, `h-10`, `w-full`) y los tokens semánticos definidos en este documento.
+   * 🚫 **PROHIBIDO** introducir estilos arbitrarios ad-hoc (valores mágicos sin token) como tamaños/espaciados no estandarizados o colores fuera de la paleta del sistema. Se deben utilizar **exclusivamente** la escala de espaciado estándar y los tokens semánticos definidos en este documento, implementados mediante clases CSS del proyecto y variables `--*`.
 
 2. **ACCESIBILIDAD Y ESTADOS INTERACTIVOS OBLIGATORIOS:**
    * Todo elemento interactivo (`<button>`, `<a>`, `<input>`, `<select>`, `<textarea>`) debe incluir explícitamente:
@@ -215,7 +217,7 @@ A fin de garantizar la mantenibilidad, consistencia visual y rendimiento de la b
      * `src/components/layout/` (Navbar, Footer, Sidebar).
 
 4. **RESTRICCIÓN DE DEPENDENCIAS CSS EXTERNAS:**
-   * 🚫 **PROHIBIDO** importar librerías CSS externas adicionales (ej. Bootstrap, Material UI, Ant Design, Chakra) que entren en conflicto con la arquitectura Tailwind CSS / Utility-First del proyecto.
+   * 🚫 **PROHIBIDO** importar librerías CSS externas adicionales (ej. Bootstrap, Material UI, Ant Design, Chakra) que entren en conflicto con la arquitectura CSS del proyecto (hojas globales/de componente, variables y movimientos definidos en esta especificación).
    * La iconografía debe provenir exclusivamente de la biblioteca oficial `lucide-react`.
 
 ---
