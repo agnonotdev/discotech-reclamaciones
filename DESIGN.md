@@ -161,7 +161,7 @@ El layout de la aplicación debe seguir un modelo centrado de contención limpia
   * Estado Inactivo: `bg-transparent border border-stone-300 dark:border-neutral-700 text-stone-600 dark:text-stone-400 hover:border-[#6515BE]`
   * Estado Activo: `bg-[#6515BE] dark:bg-[#9B59E0] text-white border-transparent shadow-sm` con contador numérico interno.
 * **Modales / Overlays:**
-  * Centrado en pantalla con backdrop semitransparente `backdrop-blur-sm bg-black/50`.
+  * Centrado en pantalla con backdrop semitransparente `backdrop-blur-md bg-black/50`.
   * Animación de entrada: Fade-in suave (`transition-opacity duration-200`).
   * Cierre por tecla `Escape` o clic fuera del contenedor modal.
 
