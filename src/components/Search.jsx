@@ -141,7 +141,7 @@ function useSpring(target, tune = 50, instant = false) {
     if (instant) {
       cur.current = target;
       vel.current = 0;
-      setAt(target);
+      requestAnimationFrame(() => setAt(target));
       return;
     }
     const { k, d } = springOf(tune);

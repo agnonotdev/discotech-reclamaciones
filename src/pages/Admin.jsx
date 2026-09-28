@@ -10,7 +10,6 @@ import {
   Clock,
   RefreshCw,
   CheckCircle2,
-  Filter,
   Calendar,
   User,
   Mail,
@@ -19,7 +18,6 @@ import {
   Inbox,
   Home,
   MessageSquare,
-  Search,
 } from "lucide-react";
 import { db } from "../firebase.js";
 import { useAuth } from "../context/AuthContext.jsx";
@@ -30,7 +28,6 @@ import { useAuth } from "../context/AuthContext.jsx";
  * Implementa: Listener onSnapshot para reactividad en vivo, filtrado local, búsqueda en tiempo real y actualización de estado mediante selector.
  */
 
-const STATUS_OPTIONS = ["Todos", "Nuevo", "En proceso", "Resuelto"];
 const AVAILABLE_STATUSES = ["Nuevo", "En proceso", "Resuelto"];
 
 export function Admin() {
