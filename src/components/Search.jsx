@@ -243,7 +243,6 @@ export function Search({
   const [press, setPress] = useState(false);
   const [value, setValue] = useState("");
   const [busy, setBusy] = useState(false);
-  const [lean, setLean] = useState({ x: 0, y: 0 });
   const still = stillness();
 
   useEffect(() => () => {
@@ -263,54 +262,10 @@ export function Search({
   /* how far through the transformation, 0 shut and 1 open */
   const p = clamp((w - SHUT) / Math.max(1, Math.max(SHUT, span) - SHUT), 0, 1);
 
-  /* ── the magnet ──────────────────────────────────────────
-     Measured from the FRAME, which never moves, and not from
-     the object, which does. A vector read off a thing the
-     vector is currently displacing is a feedback loop: it
-     converges, but it converges by ringing, and the ring is
-     visible as a shiver on an object this small.
-
-     Off entirely once open. A field that drifts toward the
-     pointer while you are trying to click into it is a field
-     fighting you. */
-  useEffect(() => {
-    const el = frame.current;
-    if (!el || open || still) return;
-    let raf = 0;
-    let at = { x: 0, y: 0 };
-    const publish = () => { raf = 0; setLean(at); };
-    const read = (e) => {
-      const b = el.getBoundingClientRect();
-      /* the wall draws this at a fraction and the canvas at a
-         zoom; a radius measured in screen pixels would be a
-         different radius at each */
-      const k = b.width / (el.offsetWidth || b.width) || 1;
-      const dx = (e.clientX - (b.left + b.width / 2)) / k;
-      const dy = (e.clientY - (b.top + b.height / 2)) / k;
-      const d = Math.hypot(dx, dy);
-      const R = 110;
-      if (d > R) {
-        if (at.x || at.y) { at = { x: 0, y: 0 }; if (!raf) raf = requestAnimationFrame(publish); }
-        return;
-      }
-      /* A FEW PIXELS. The brief for this is "responsive, not
-         following" and the difference is entirely in the
-         ceiling: past about seven the object stops being a
-         thing that acknowledges you and starts being a thing
-         you are dragging around. */
-      const pull = (1 - d / R) ** 1.4 * (2 + (give / 100) * 5);
-      at = { x: (dx / (d || 1)) * pull, y: (dy / (d || 1)) * pull };
-      if (!raf) raf = requestAnimationFrame(publish);
-    };
-    const gone = () => { at = { x: 0, y: 0 }; if (!raf) raf = requestAnimationFrame(publish); };
-    document.addEventListener("pointermove", read, { passive: true });
-    document.addEventListener("pointerleave", gone);
-    return () => {
-      document.removeEventListener("pointermove", read);
-      document.removeEventListener("pointerleave", gone);
-      cancelAnimationFrame(raf);
-    };
-  }, [open, give, still]);
+  /* ── the magnet (desactivado) ─────────────────────────────
+     El seguimiento por movimiento del cursor ha sido removido
+     para mantener el componente estático en su posición. */
+  const lean = { x: 0, y: 0 };
 
   /* ── opening ─────────────────────────────────────────────
      Compress, then expand, then focus. The order matters and

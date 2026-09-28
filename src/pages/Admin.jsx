@@ -10,7 +10,6 @@ import {
   Clock,
   RefreshCw,
   CheckCircle2,
-  Filter,
   Calendar,
   User,
   Mail,
@@ -19,7 +18,6 @@ import {
   Inbox,
   Home,
   MessageSquare,
-  Search,
 } from "lucide-react";
 import { db } from "../firebase.js";
 import { useAuth } from "../context/AuthContext.jsx";
@@ -30,8 +28,16 @@ import { useAuth } from "../context/AuthContext.jsx";
  * Implementa: Listener onSnapshot para reactividad en vivo, filtrado local, búsqueda en tiempo real y actualización de estado mediante selector.
  */
 
-const STATUS_OPTIONS = ["Todos", "Nuevo", "En proceso", "Resuelto"];
 const AVAILABLE_STATUSES = ["Nuevo", "En proceso", "Resuelto"];
+
+function normalizeTicketStatus(status) {
+  if (!status || status === "Pendiente") return "Nuevo";
+  return status;
+}
+
+function getTicketStatus(ticket) {
+  return normalizeTicketStatus(ticket?.estado);
+}
 
 export function Admin() {
   const { currentUser, logout } = useAuth();
@@ -86,10 +92,14 @@ export function Admin() {
     const unsubscribe = onSnapshot(
       reclamacionesRef,
       (snapshot) => {
-        const fetchedTickets = snapshot.docs.map((document) => ({
-          id: document.id,
-          ...document.data(),
-        }));
+        const fetchedTickets = snapshot.docs.map((document) => {
+          const data = document.data();
+          return {
+            id: document.id,
+            ...data,
+            estado: normalizeTicketStatus(data?.estado),
+          };
+        });
 
         // Orden descendente por fecha de creación
         fetchedTickets.sort((a, b) => {
@@ -112,13 +122,14 @@ export function Admin() {
   }, []);
 
   async function handleStatusChange(ticketId, newStatus) {
+    const normalizedStatus = normalizeTicketStatus(newStatus);
     setUpdatingId(ticketId);
     setErrorMessage("");
 
     try {
       const ticketRef = doc(db, "reclamaciones", ticketId);
       await updateDoc(ticketRef, {
-        estado: newStatus,
+        estado: normalizedStatus,
       });
     } catch (error) {
       console.error("Error al actualizar estado:", error);
@@ -151,7 +162,7 @@ export function Admin() {
   }
 
   function renderStatusBadge(status) {
-    const normalizedStatus = status === "Pendiente" ? "Nuevo" : status;
+    const normalizedStatus = normalizeTicketStatus(status);
     switch (normalizedStatus) {
       case "Nuevo":
         return (
@@ -185,8 +196,7 @@ export function Admin() {
 
     if (filterStatus !== "Todos") {
       result = result.filter((ticket) => {
-        const current = ticket.estado === "Pendiente" ? "Nuevo" : ticket.estado;
-        return current === filterStatus;
+        return getTicketStatus(ticket) === filterStatus;
       });
     }
 
@@ -206,9 +216,9 @@ export function Admin() {
   const counts = useMemo(() => {
     return {
       Todos: tickets.length,
-      Nuevo: tickets.filter((t) => t.estado === "Nuevo" || t.estado === "Pendiente").length,
-      "En proceso": tickets.filter((t) => t.estado === "En proceso").length,
-      Resuelto: tickets.filter((t) => t.estado === "Resuelto").length,
+      Nuevo: tickets.filter((t) => getTicketStatus(t) === "Nuevo").length,
+      "En proceso": tickets.filter((t) => getTicketStatus(t) === "En proceso").length,
+      Resuelto: tickets.filter((t) => getTicketStatus(t) === "Resuelto").length,
     };
   }, [tickets]);
 
@@ -246,7 +256,6 @@ export function Admin() {
             style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
           >
             <LogOut size={16} />
-            <span>Cerrar Sesión</span>
           </button>
         </div>
       </header>
@@ -312,7 +321,7 @@ export function Admin() {
       ) : (
         <div className="admin-tickets-grid">
           {filteredTickets.map((ticket) => {
-            const normalizedStatus = ticket.estado === "Pendiente" ? "Nuevo" : (ticket.estado || "Nuevo");
+            const normalizedStatus = getTicketStatus(ticket);
             const statusClass = normalizedStatus.toLowerCase().replace(/\s+/g, "-");
             const isSoftDeleted = softDeletedIds.has(ticket.id);
             return (
@@ -368,7 +377,7 @@ export function Admin() {
                   )}
                   <select
                     className="admin-status-select"
-                    value={ticket.estado === "Pendiente" ? "Nuevo" : (ticket.estado || "Nuevo")}
+                    value={getTicketStatus(ticket)}
                     onChange={(e) => handleStatusChange(ticket.id, e.target.value)}
                     disabled={updatingId === ticket.id || isSoftDeleted}
                     aria-label="Cambiar estado del ticket"

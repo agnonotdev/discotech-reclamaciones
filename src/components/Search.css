@@ -211,9 +211,7 @@
    point — a hover state you notice is a hover state that has
    said too much. */
 .sek:not([data-open="true"]) .sek-skin:hover {
-  --sk: 1.045;
-  /* the surface answers, without drawing an edge it was not
-     given — brightness rather than an outline */
+  /* the surface answers with brightness rather than movement */
   --g-bright: 104%;
 }
 
