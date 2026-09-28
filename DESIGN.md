@@ -91,15 +91,15 @@
 
 ### 2.4 Semántica del Dominio (Estados de Reclamaciones)
 El dominio maneja 3 estados principales y 2 utilitarios:
-1. **Nuevo (State: `nuevo`):**
+1. **Nuevo (Estado canónico: `Nuevo`; clase CSS: `status-nuevo`):**
    * Background: `bg-sky-500/10 dark:bg-sky-500/20`
    * Border: `border-sky-500/30 dark:border-sky-400/40`
    * Text/Icon: `text-sky-700 dark:text-sky-400`
-2. **En Proceso (State: `en-proceso`):**
+2. **En Proceso (Estado canónico: `En proceso`; clase CSS: `status-en-proceso`):**
    * Background: `bg-purple-500/10 dark:bg-purple-500/20`
    * Border: `border-purple-500/30 dark:border-purple-400/40`
    * Text/Icon: `text-purple-700 dark:text-purple-300`
-3. **Resuelto (State: `resuelto`):**
+3. **Resuelto (Estado canónico: `Resuelto`; clase CSS: `status-resuelto`):**
    * Background: `bg-emerald-500/10 dark:bg-emerald-500/20`
    * Border: `border-emerald-500/30 dark:border-emerald-400/40`
    * Text/Icon: `text-emerald-700 dark:text-emerald-400`
