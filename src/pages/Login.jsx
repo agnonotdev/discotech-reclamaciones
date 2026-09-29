@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import {
   signInWithPopup,
@@ -16,6 +16,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { auth } from "../firebase.js";
+import { motion, AnimatePresence } from "framer-motion";
 
 /**
  * Descripción: Página de inicio de sesión administrativo con soporte para Google y Correo/Contraseña, diseño enriquecido con Lucide y modal de soporte para recuperación de contraseña.
@@ -29,6 +30,17 @@ export function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showForgotModal, setShowForgotModal] = useState(false);
+
+  useEffect(() => {
+    if (!showForgotModal) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setShowForgotModal(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showForgotModal]);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -233,94 +245,105 @@ export function Login() {
         </div>
       </form>
 
-      {showForgotModal && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          onClick={() => setShowForgotModal(false)}
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.6)",
-            backdropFilter: "blur(3px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 9999,
-            padding: "16px",
-            boxSizing: "border-box",
-          }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
+      <AnimatePresence>
+        {showForgotModal && (
+          <motion.div
+            key="forgot-modal-overlay"
+            role="dialog"
+            aria-modal="true"
+            onClick={() => setShowForgotModal(false)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
             style={{
-              backgroundColor: "var(--bg)",
-              color: "var(--text-h)",
-              border: "1px solid var(--border)",
-              borderRadius: "12px",
-              padding: "24px",
-              maxWidth: "420px",
+              position: "fixed",
+              top: 0,
+              left: 0,
               width: "100%",
-              boxShadow: "var(--shadow)",
-              textAlign: "center",
+              height: "100%",
+              backgroundColor: "rgba(0, 0, 0, 0.6)",
+              backdropFilter: "blur(3px)",
               display: "flex",
-              flexDirection: "column",
               alignItems: "center",
-              gap: "16px",
+              justifyContent: "center",
+              zIndex: 9999,
+              padding: "16px",
+              boxSizing: "border-box",
             }}
           >
-            <div
+            <motion.div
+              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
               style={{
-                width: "48px",
-                height: "48px",
-                borderRadius: "50%",
-                backgroundColor: "var(--accent-bg)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "var(--accent)",
-              }}
-            >
-              <HelpCircle size={26} />
-            </div>
-
-            <h3 style={{ margin: 0, fontSize: "20px", color: "var(--text-h)" }}>
-              ¿Olvidaste tu contraseña?
-            </h3>
-
-            <p
-              style={{
-                margin: 0,
-                fontSize: "15px",
-                color: "var(--text)",
-                lineHeight: "1.5",
-              }}
-            >
-              Por seguridad, no puedes reestablecer tu contraseña en este espacio.
-              Para ello, deberás contactar a un <strong>admin superior</strong>.
-            </p>
-
-            <button
-              type="button"
-              onClick={() => setShowForgotModal(false)}
-              className="claim-submit-button"
-              style={{
+                backgroundColor: "var(--bg)",
+                color: "var(--text-h)",
+                border: "1px solid var(--border)",
+                borderRadius: "12px",
+                padding: "24px",
+                maxWidth: "420px",
                 width: "100%",
-                marginTop: "8px",
-                padding: "10px 16px",
-                fontSize: "15px",
-                fontWeight: 600,
-                cursor: "pointer",
+                boxShadow: "var(--shadow)",
+                textAlign: "center",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "16px",
               }}
             >
-              Entendido
-            </button>
-          </div>
-        </div>
-      )}
+              <div
+                style={{
+                  width: "48px",
+                  height: "48px",
+                  borderRadius: "50%",
+                  backgroundColor: "var(--accent-bg)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "var(--accent)",
+                }}
+              >
+                <HelpCircle size={26} />
+              </div>
+
+              <h3 style={{ margin: 0, fontSize: "20px", color: "var(--text-h)" }}>
+                ¿Olvidaste tu contraseña?
+              </h3>
+
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: "15px",
+                  color: "var(--text)",
+                  lineHeight: "1.5",
+                }}
+              >
+                Por seguridad, no puedes reestablecer tu contraseña en este espacio.
+                Para ello, deberás contactar a un <strong>admin superior</strong>.
+              </p>
+
+              <button
+                type="button"
+                onClick={() => setShowForgotModal(false)}
+                className="claim-submit-button"
+                style={{
+                  width: "100%",
+                  marginTop: "8px",
+                  padding: "10px 16px",
+                  fontSize: "15px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                Entendido
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

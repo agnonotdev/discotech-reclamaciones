@@ -43,6 +43,10 @@ export function InlineConfirm({
 
   const handleDelete = (e) => {
     e.stopPropagation();
+    if (timerRef.current) {
+      window.clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
     setPhase("done");
     if (onDeleteStart) {
       onDeleteStart();
@@ -108,7 +112,7 @@ export function InlineConfirm({
           <Undo2 size={13} strokeWidth={2.2} />
           <span>Deshacer</span>
         </button>
-        <i key={phase} className="bencho-confirm-fuse" />
+        {phase === "done" && <i className="bencho-confirm-fuse" />}
       </div>
     </div>
   );

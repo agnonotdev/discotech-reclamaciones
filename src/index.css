@@ -351,12 +351,7 @@ code {
   margin-bottom: 24px;
 }
 
-/* Constrain the BenchoSearch frame height so it sits flush inline
-   with the rest of the header controls. The frame's job is to give
-   the magnet room — 44px is enough for the needle to move without
-   pushing the header line-height out. Inline style on the component
-   sets --frameh; this local override wins via specificity. */
-.admin-header .sek {
+.admin-filter-bar .sek {
   height: 44px !important;
 }
 
@@ -478,7 +473,7 @@ code {
   border-radius: 10px;
   padding: 20px;
   box-shadow: var(--shadow);
-  transition: all 0.25s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
 .admin-ticket-card.admin-ticket-soft-deleted {

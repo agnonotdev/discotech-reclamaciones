@@ -1,0 +1,144 @@
+/* ==========================================================================
+   StatefulButton.css — Estilos alineados con DESIGN.md (Sección 2.5 y tokens)
+   ========================================================================== */
+
+.stateful-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 140px;
+  padding: 12px 22px;
+  border-radius: 8px; /* rounded-lg según DESIGN.md */
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  outline: none;
+  user-select: none;
+  box-sizing: border-box;
+  box-shadow: var(--shadow);
+  transition: background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stateful-btn-full {
+  width: 100%;
+}
+
+.stateful-btn-inner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.stateful-btn-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 1. Variante Primaria (Acento oficial: #6515BE en light, #9B59E0 en dark) */
+.stateful-btn-primary {
+  background-color: var(--accent);
+  color: #ffffff;
+  border-color: transparent;
+}
+
+.stateful-btn-primary:hover:not(:disabled) {
+  opacity: 0.94;
+  box-shadow: 0 4px 12px var(--accent-border);
+}
+
+.stateful-btn-primary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-bg), 0 0 0 1px var(--accent);
+}
+
+/* 2. Variante Secundaria (Outline sutil de la paleta neutral) */
+.stateful-btn-secondary {
+  background-color: transparent;
+  color: var(--text-h);
+  border-color: var(--border);
+}
+
+.stateful-btn-secondary:hover:not(:disabled) {
+  background-color: var(--social-bg);
+  border-color: var(--accent);
+}
+
+.stateful-btn-secondary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+/* 3. Variante Éxito (Verde resolución: #16a34a) */
+.stateful-btn-success {
+  background-color: var(--resolved-accent);
+  color: #ffffff;
+  border-color: transparent;
+}
+
+.stateful-btn-success:hover:not(:disabled) {
+  opacity: 0.94;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.35);
+}
+
+/* 4. Variante Code/Accent Soft (Botón de copiar radicado) */
+.stateful-btn-code {
+  background-color: var(--code-bg);
+  color: var(--accent);
+  border-color: var(--accent-border);
+}
+
+.stateful-btn-code:hover:not(:disabled) {
+  background-color: var(--accent);
+  color: #ffffff;
+}
+
+.stateful-btn-code.copied {
+  background-color: rgba(30, 142, 62, 0.12);
+  border-color: rgba(30, 142, 62, 0.4);
+  color: var(--color-success);
+}
+
+/* Estados de inhabilitación */
+.stateful-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Ranura fija para icono: dimensiones fijas 18x18px para eliminar layout thrashing */
+.stateful-btn-icon-slot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.stateful-btn-icon-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  position: relative;
+  flex-shrink: 0;
+  transform-origin: center center;
+  will-change: transform, opacity;
+}
+
+/* Íconos internos animados */
+.stateful-btn-loader,
+.stateful-btn-check {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  vertical-align: middle;
+  transform-origin: center center;
+  will-change: transform, opacity;
+}

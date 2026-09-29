@@ -1,224 +1,125 @@
-# DESIGN.md — Sistema de Diseño y Especificación Visual
-**Proyecto:** Discotech Reclamaciones — Libro de Reclamaciones Digital
-**Versión:** 1.0.0 (Vinculante)
-**Rol Emisor:** Principal Product Designer & Design Systems Architect
+# DESIGN.md - Discotech Reclamaciones (Single Source of Truth)
 
----
-
-## Parámetros del Proyecto
-
-* **Nombre / Tipo de Producto:** **Discotech Reclamaciones** — Sistema SaaS B2B y Portal Ciudadano para la recepción, gestión y resolución normativa de reclamaciones y quejas en tiempo real.
-* **Audiencia Principal:**
-  1. **Consumidores B2C / Usuarios Finales:** Registran reclamos y consultan el estado mediante radicado único con interfaces simples y accesibles.
-  2. **Operadores Administrativos & Equipo Legal:** Gestionan tickets, modifican estados, aplican filtros y buscan solicitudes en un panel de alta eficiencia.
-* **Identidad Visual / Vibe:** **Minimalismo Editorial & Warm Craft** (inspirado en estética *Linear / Warm Editorial*), combinando la elegancia de superficies cálidas/neutras, tipografía refinada, bordes estructurados y resaltados con acentos morados, azules y verdes funcionales.
-* **Stack de Interfaz:** React 19, Vite, React Router DOM v7, CSS global/de componente con variables personalizadas y transiciones/animaciones CSS (ver `src/index.css`, `src/App.css`, `src/components/*.css`), Lucide Icons (`lucide-react`).
-* **Tema Base:** Dual Mode nativo (Light mode por defecto basado en `#FAF6EF` / Dark mode estructurado en `#161616` mediante `prefers-color-scheme` o selector `.dark`).
+## Contexto del Proyecto
+- **Producto:** Sistema de Gestión de Reclamaciones B2C y Panel Administrativo (Admin Dashboard).
+- **Audiencia:** Usuarios finales B2C (Formulario de reclamos) y Administradores/Resolutores del club/discoteca.
+- **Identidad Visual / Vibe:** Apple Human Interface Guidelines adaptado a Web / Minimalismo Funcional Dark-Mode-First. Fluid motion con físicas de resortes (springs) y aceleración por GPU. Interacciones cinemáticas sutiles sin rebotes gomosos exagerados.
+- **Stack de Interfaz:** React 19, Vite, CSS Grid/Flexbox moderno, Variables CSS (CSS Custom Properties), Framer Motion (Web), React Native Reanimated (Expo/Nativo), Lucide Icons.
+- **Tema Base:** Dark Mode Estricto (con soporte ocasional de gradientes profundos).
 
 ---
 
 ## 1. PRINCIPIOS DE EXPERIENCIA Y DENSIDAD
 
-### 1.1 Filosofía Visual: Contraste, Espacio Negativo y Jerarquía
-* **Contraste Intencional:** La interfaz utiliza un alto contraste legibilidad-primero (mínimo WCAG AA 4.5:1 para texto normal, 3:1 para texto grande e íconos interactivos). Los acentos de color se reservan estrictamente para focalizar la atención en acciones primarias y estados del dominio (reclamos nuevos, en proceso, resueltos).
-* **Espacio Negativo Activo:** El espacio blanco/neutro no es vacío decorativo; se utiliza como delimitador visual primario para reducir la carga cognitiva. El agrupamiento de elementos sigue la Ley de Proximidad de Gestalt.
-* **Jerarquía de Atención en 3 Niveles:**
-  1. **Nivel Primario (Atracción):** Radicados de reclamación (`REC-YYYY-XXXX`), botones de acción principal, badges de alerta.
-  2. **Nivel Secundario (Navegación y Contexto):** Encabezados H1/H2, selectores de estado, filtros pills.
-  3. **Nivel Terciario (Soporte):** Fechas, metadatos del cliente, textos explicativos y footers.
+### Filosofía Visual
+- **Menos es más:** Contraste tipográfico y uso agresivo del espacio negativo en lugar de bordes pesados o fondos ruidosos.
+- **Materiales Nativos:** Uso de fondos translúcidos (`backdrop-filter`) para dar sentido de profundidad y jerarquía en la acumulación de capas (Z-axis).
+- **Motion como Feedback:** La animación nunca es decorativa; siempre informa al usuario de cambios de estado, confirmaciones y reordenamientos físicos. Movimientos snappys, curvas de aceleración asimétricas y sin distorsión de bounding-boxes.
 
-### 1.2 Nivel de Densidad y Reglas de Espaciado
-* **Nivel de Densidad General:** **Media / Compacta**.
-  * Portal Público (Formulario de Reclamos): **Densidad Media** (espaciados amplios `p-6` a `p-8`, `gap-4` a `gap-6` para minimizar errores de escritura).
-  * Panel Administrativo (Tickets y Tablas): **Densidad Compacta** (paddings reducidos `p-3` a `p-4`, `gap-2` a `gap-3` para maximizar la densidad de información visible sin scroll).
-* **Grid de Espaciado Base:** Sistema estricto basado en múltiplos de **8px** (con subpasos de **4px** para micro-ajustes):
-  * `0.5` -> `2px` (Bordes finos / offsets)
-  * `1` -> `4px` (Padding de badges, gap entre icono y texto)
-  * `2` -> `8px` (Gap compacto en controles, padding interno de botones pequeños)
-  * `3` -> `12px` (Padding interno de inputs y cards compactas)
-  * `4` -> `16px` (Padding base de cards, gap medio)
-  * `6` -> `24px` (Padding amplio de secciones, margin bottom de títulos)
-  * `8` -> `32px` (Padding de modales y contenedores principales)
-  * `12` -> `48px` (Espaciado de secciones vacías / empty states)
-  * `16` -> `64px` (Gaps mayores de layout global)
+### Nivel de Densidad
+- **Media-Compacta (Admin):** Optimizado para legibilidad de datos y densidad de tickets. Espaciado en múltiplos de `4px` y `8px` (`gap: 16px`, `padding: 12px 20px`).
+- **Media-Holgada (B2C):** Interfaces de consumo (Login, Formulario) con áreas táctiles grandes (mínimo `44px`) y respiración abundante (`gap: 24px`, `margin-bottom: 32px`).
 
-### 1.3 Reglas de Elevación, Bordes y Capas Translúcidas
-* **Bordes Estructurales (`border-*`):**
-  * La separación de contenedores depende primariamente de bordes físicos de `1px` en lugar de sombras pesadas.
-  * Regla de opacidad: `border-slate-200 dark:border-neutral-800` para estructura base; `border-purple-500/40` para elementos activos o enfocados.
-* **Capas Translúcidas y Efectos de Fondo (`backdrop-blur-*`):**
-  * Uso obligatorio de `backdrop-blur-md` combinado con `bg-neutral-50/80 dark:bg-neutral-900/80` en Navbars pegajosas (*sticky*), Modales y Popovers para mantener contexto situacional.
-* **Sombras Semánticas (`shadow-*`):**
-  * `shadow-none`: Para elementos planos integrados.
-  * `shadow-sm`: Para inputs, botones resting state y tarjetas secundarias (`shadow-black/5 dark:shadow-black/20`).
-  * `shadow-md`: Para hover state de tarjetas de tickets y desplegables.
-  * `shadow-xl`: Reservado exclusivamente para Modales y Drawers flotantes.
+### Elevación, Sombras y Materiales
+- **Superficie 0 (Canvas):** Fondo plano oscuro o gradiente muy sutil. Sin sombras.
+- **Superficie 1 (Cards, Inputs):** Borders translúcidos (`rgba(255, 255, 255, 0.08)`), fondos sólidos oscuros con ligero toque del color de marca.
+- **Superficie 2 (Modales, Navbars, Floating Actions):** Efecto Glassmorfismo. `backdrop-filter: blur(12px) saturate(180%)`, borde ultra-fino y sombras profundas pero suaves (`box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4)`).
 
 ---
 
-## 2. DICCIONARIO DE TOKENS (Referencia de estilos CSS del proyecto)
+## 2. DICCIONARIO DE TOKENS (Variables CSS)
 
-> Nota: la notación tipo `bg-*`, `text-*`, `border-*`, `shadow-*`, `backdrop-blur-*` y `animate-*` en este documento define intención visual de diseño. La implementación vinculante en este proyecto se realiza con clases CSS reales y variables (`--*`) en hojas globales y de componente.
+Este proyecto NO utiliza Tailwind. Se basa estrictamente en CSS nativo con Custom Properties en `index.css`.
 
-### 2.1 Backgrounds & Superficies
-| Nivel de Superficie | Rol / Uso | Referencia visual (Light Mode) | Referencia visual (Dark Mode) |
-| :--- | :--- | :--- | :--- |
-| **Canvas Base** | Fondo principal de la app | `bg-[#FAF6EF]` | `dark:bg-[#161616]` |
-| **Surface 1** | Tarjetas de tickets, Formulario base | `bg-[#FAF6EF]` o `bg-white` | `dark:bg-[#1C1C1C]` |
-| **Surface 2** | Modales, Popovers, Dropdowns | `bg-[#F0E7FA]/40` o `bg-stone-100` | `dark:bg-[#242026]` |
-| **Surface Accent** | Cajas de radicado, resaltados | `bg-[#6515BE]/10` | `dark:bg-[#9B59E0]/15` |
-| **Overlay** | Telón de fondo de modales | `bg-black/40` | `dark:bg-black/70` |
+### Backgrounds & Superficies
+```css
+:root {
+  --bg: #121015; /* Canvas principal */
+  --card-bg: rgba(28, 24, 32, 0.6); /* Superficie 1 - Translúcida */
+  --card-bg-solid: #1c1820; /* Superficie 1 - Sólida */
+  --glass-bg: rgba(28, 24, 32, 0.85); /* Superficie 2 - Glassmorphism */
+  --overlay-bg: rgba(0, 0, 0, 0.65); /* Modal Backdrops */
+}
+```
 
-### 2.2 Tipografía
-* **Fuentes Base:**
-  * **Sans (Cuerpo y Títulos):** `font-sans` (`system-ui`, `-apple-system`, `BlinkMacSystemFont`, `'Segoe UI'`, `Roboto`, `sans-serif`)
-  * **Mono (Radicados y Código):** `font-mono` (`ui-monospace`, `'SFMono-Regular'`, `'Consolas'`, `monospace`)
+### Text & Foreground (Escala de Grises)
+```css
+:root {
+  --text-primary: #ffffff; /* Títulos y datos clave */
+  --text-secondary: rgba(255, 255, 255, 0.7); /* Párrafos, labels descriptivos */
+  --text-muted: rgba(255, 255, 255, 0.45); /* Placeholders, timestamps secundarios */
+  --border: rgba(255, 255, 255, 0.08); /* Bordes de separación universales */
+}
+```
 
-* **Escala de Jerarquía Tipográfica:**
-| Nivel | Patrón de estilo de referencia | Tamaño / Interlineado | Peso |
-| :--- | :--- | :--- | :--- |
-| **Display H1** | `text-3xl lg:text-5xl tracking-tight` | `36px/48px` - `56px/64px` | `font-medium` (500) |
-| **Section H2** | `text-xl lg:text-2xl tracking-tight` | `20px/28px` - `24px/32px` | `font-semibold` (600) |
-| **Subtitle H3** | `text-base lg:text-lg` | `16px/24px` - `18px/28px` | `font-medium` (500) |
-| **Body Base** | `text-base leading-relaxed` | `16px/24px` (18px en desktop) | `font-normal` (400) |
-| **Body Small** | `text-sm leading-normal` | `14px/20px` | `font-normal` (400) |
-| **Radicado / Code** | `font-mono text-xl lg:text-2xl tracking-widest` | `20px/28px` - `28px/36px` | `font-bold` (700) |
-| **Caption / Label** | `text-xs uppercase tracking-wider` | `12px/16px` | `font-semibold` (600) |
+### Semántica del Dominio (Estados de Tickets y Sistema)
+```css
+:root {
+  /* Marca / Primary Action */
+  --accent: #5e35b1;
+  --accent-hover: #673ab7;
+  --accent-glow: rgba(94, 53, 177, 0.25);
 
-### 2.3 Text & Foreground
-* **Texto Primario:** `text-[#161616] dark:text-[#F5F0E8]` (Lectura principal, títulos, campos requeridos).
-* **Texto Secundario:** `text-[#6B6B6B] dark:text-[#9B9B9B]` (Descripciones, metadatos, timestamps).
-* **Texto Muted / Deshabilitado:** `text-stone-400 dark:text-neutral-600` (Placeholders, opciones deshabilitadas).
-* **Texto Acento:** `text-[#6515BE] dark:text-[#9B59E0]` (Enlaces, botones secundarios activos, destacados).
+  /* Estados Funcionales */
+  --success: #10b981;
+  --success-bg: rgba(16, 185, 129, 0.15);
+  --error: #ef4444;
+  --error-bg: rgba(239, 68, 68, 0.15);
+  
+  /* Estados de Tickets Específicos */
+  --ticket-nuevo: #0ea5e9;       /* Azul brillante */
+  --ticket-progreso: #f59e0b;    /* Ámbar */
+  --ticket-resuelto: #10b981;    /* Esmeralda */
+  --ticket-cerrado: #64748b;     /* Slate / Gris */
+}
+```
 
-### 2.4 Semántica del Dominio (Estados de Reclamaciones)
-El dominio maneja 3 estados principales y 2 utilitarios:
-1. **Nuevo (Estado canónico: `Nuevo`; clase CSS: `status-nuevo`):**
-   * Background: `bg-sky-500/10 dark:bg-sky-500/20`
-   * Border: `border-sky-500/30 dark:border-sky-400/40`
-   * Text/Icon: `text-sky-700 dark:text-sky-400`
-2. **En Proceso (Estado canónico: `En proceso`; clase CSS: `status-en-proceso`):**
-   * Background: `bg-purple-500/10 dark:bg-purple-500/20`
-   * Border: `border-purple-500/30 dark:border-purple-400/40`
-   * Text/Icon: `text-purple-700 dark:text-purple-300`
-3. **Resuelto (Estado canónico: `Resuelto`; clase CSS: `status-resuelto`):**
-   * Background: `bg-emerald-500/10 dark:bg-emerald-500/20`
-   * Border: `border-emerald-500/30 dark:border-emerald-400/40`
-   * Text/Icon: `text-emerald-700 dark:text-emerald-400`
-4. **Peligro / Error (Danger):**
-   * Background: `bg-red-500/10 dark:bg-red-500/20`
-   * Border: `border-red-500/40 dark:border-red-400/40`
-   * Text/Icon: `text-red-600 dark:text-red-400`
-5. **Información / Neutral (Info):**
-   * Background: `bg-stone-500/10 dark:bg-neutral-500/20`
-   * Border: `border-stone-300 dark:border-neutral-700`
-   * Text/Icon: `text-stone-700 dark:text-neutral-300`
+### Tipografía
+- **Fuente Principal:** Inter, Roboto, San Francisco (System Stack).
+- **Pesos:** Regular (400), Medium (500), SemiBold (600), Bold (700).
 
-### 2.5 Acciones Principales (Primary Actions & Buttons)
-* **Botón Primario (Primary Button):**
-  * Base: `bg-[#6515BE] dark:bg-[#9B59E0] text-white font-semibold rounded-lg px-5 py-2.5 transition-all duration-200`
-  * Hover: `hover:bg-[#520f9c] dark:hover:bg-[#8844cc] hover:shadow-md`
-  * Active: `active:scale-[0.98]`
-  * Disabled: `disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none`
-  * Focus: `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6515BE] dark:focus-visible:ring-[#9B59E0] focus-visible:ring-offset-2`
-* **Botón Secundario (Secondary / Outline Button):**
-  * Base: `bg-transparent border border-stone-300 dark:border-neutral-700 text-[#161616] dark:text-[#F5F0E8] font-medium rounded-lg px-4 py-2 transition-all duration-200`
-  * Hover: `hover:bg-stone-100 dark:hover:bg-neutral-800 hover:border-stone-400 dark:hover:border-neutral-600`
-* **Estados de Carga (Loading States):**
-  * Ícono de spinner giratorio (`animate-spin`) obligatorio en acciones asíncronas con texto descriptivo ("Procesando...", "Guardando...").
-
-### 2.6 Bordes y Formas (Radios)
-* **`rounded-sm` (`2px` - `4px`):** Tags internos, chips diminutos.
-* **`rounded-md` (`6px`):** Botones pequeños, opciones de select, controles inline.
-* **`rounded-lg` (`8px`):** Inputs de formulario, botones principales, alertas.
-* **`rounded-xl` (`12px`):** Tarjetas de tickets, contenedores de formulario, modales.
-* **`rounded-full` (`9999px`):** Badges de estado, avatares, pills de filtro.
+### Bordes y Formas (Radios)
+```css
+:root {
+  --radius-sm: 6px;   /* Badges, Checkboxes, Inputs pequeños */
+  --radius-md: 10px;  /* Botones estándar, Tickets, Modales internos */
+  --radius-lg: 16px;  /* Cards grandes, Modales principales, Layout containers */
+  --radius-full: 9999px; /* Pill buttons, Avatares */
+}
+```
 
 ---
 
 ## 3. ARQUITECTURA DE COMPONENTES CORE
 
-### 3.1 Layout Global
-El layout de la aplicación debe seguir un modelo centrado de contención limpia con flexibilidad responsiva:
-```text
-+-------------------------------------------------------------------+
-|                        HEADER / NAVBAR                            |
-| [Logo Discotech]                              [Filtros / Logout]  |
-+-------------------------------------------------------------------+
-|                                                                   |
-|                       CONTENT AREA                                |
-|  - Container max-width: 1126px (Público) / 960px (Admin)          |
-|  - Margen lateral adaptativo: px-4 sm:px-6 lg:px-8                |
-|  - Distribución Vertical: flex flex-col min-h-screen              |
-|                                                                   |
-+-------------------------------------------------------------------+
-|                        FOOTER GLOBAL                              |
-| [Información Institucional & Derechos Reservados]                  |
-+-------------------------------------------------------------------+
-```
+### Layout Global
+- **B2C (Home/Login):** Layout centrado, ancho máximo restringido (max-width: 480px a 600px). Focus absoluto en la tarea.
+- **Admin Dashboard:** Layout fluido (`max-width: 1200px`), con `Header` superior o barra lateral de filtros (IconBar), zona de búsqueda a la derecha, y grilla de contenido (Admin Tickets Grid).
 
-### 3.2 Patrones de Navegación
-* **Pills de Filtrado (Filter Bar):**
-  * Disposición horizontal flexible (`flex flex-wrap gap-2.5 mb-6`).
-  * Estado Inactivo: `bg-transparent border border-stone-300 dark:border-neutral-700 text-stone-600 dark:text-stone-400 hover:border-[#6515BE]`
-  * Estado Activo: `bg-[#6515BE] dark:bg-[#9B59E0] text-white border-transparent shadow-sm` con contador numérico interno.
-* **Modales / Overlays:**
-  * Centrado en pantalla con backdrop semitransparente `backdrop-blur-md bg-black/50`.
-  * Animación de entrada: Fade-in suave (`transition-opacity duration-200`).
-  * Cierre por tecla `Escape` o clic fuera del contenedor modal.
+### Patrones de Interacción & Animación
+- **Entrance:** Fade-ins rápidos con micro-desplazamientos verticales (ej. `y: 8px -> 0px`) mediante Framer Motion. Duraciones de 0.15s - 0.25s. Curvas de aceleración tipo asimétrica (`ease: [0.16, 1, 0.3, 1]`).
+- **Hover/Press:** Cambios de escala microscópicos y rápidos (`scale: 0.97` en botones) sin opacidades extremas.
+- **Transiciones de CSS:** Restringidas **únicamente** a color (`background-color`, `border-color`, `color`, `box-shadow`, `fill`). **Nunca** animar `all` o dimensiones (`width`, `height`, `margin`) vía CSS puro si hay Framer Motion presente.
+- **Aceleración GPU:** Usar `will-change: transform, opacity` en listas dinámicas pesadas.
 
-### 3.3 Tablas y Listas de Tickets
-* **Contenedor Grid/Lista:**
-  * Disposición vertical en pila con `flex flex-col gap-4`.
-* **Tarjetas de Ticket (`admin-ticket-card`):**
-  * Borde temático sutil acorde al estado del ticket (Nuevo: Azul, En Proceso: Morado, Resuelto: Verde).
-  * Cabecera del ticket con Flexbox desplegado (`flex justify-between items-start gap-3`).
-  * Mantenimiento de legibilidad con bloques de mensaje formateados (`whitespace-pre-wrap leading-relaxed bg-[#F0E7FA]/30 dark:bg-[#1E1724] p-3 rounded-md`).
-* **Estados Vacíos (Empty States):**
-  * Debe incluir ícono temático Lucide (`FileText`, `SearchX` o `Inbox`), título claro, descripción explicativa y botón de acción si corresponde (ej. "Limpiar búsqueda").
-* **Skeleton Loaders:**
-  * Uso de bloques rectangulares con gradiente animado de pulso (`animate-pulse bg-stone-200 dark:bg-neutral-800 rounded-md`).
+### Formularios, Inputs y Filtros
+- Fondos sólidos con `var(--card-bg-solid)` o bordes sutiles.
+- **Focus States:** Anillo de foco (Focus Ring) consistente, brillante, usualmente `var(--accent-glow)` o blanco semi-transparente, usando `box-shadow`. Outline desactivado (`outline: none`).
+- Sin labels flotantes animados innecesarios; usar diseño clásico con labels claros (`--text-secondary`) y placeholders.
 
-### 3.4 Formularios e Inputs
-* **Estructura del Campo:**
-  * Contenedor vertical (`flex flex-col gap-1.5 mb-4`).
-  * Etiqueta (`<label>`): `text-sm font-medium text-[#161616] dark:text-[#F5F0E8]`. Asterisco de requerido en `text-red-500`.
-* **Estilos Base del Input/Select/Textarea:**
-  * `w-full px-3.5 py-2.5 rounded-lg border border-stone-300 dark:border-neutral-700 bg-white dark:bg-[#161616] text-[#161616] dark:text-[#F5F0E8] text-base transition-colors duration-150`
-* **Estados de Foco (Focus State):**
-  * `focus:outline-none focus:border-[#6515BE] dark:focus:border-[#9B59E0] focus:ring-2 focus:ring-[#6515BE]/20 dark:focus:ring-[#9B59E0]/20`
-* **Estado de Error:**
-  * `border-red-500 dark:border-red-400 focus:ring-red-500/20` acompañado de mensaje explicativo en `text-xs text-red-600 dark:text-red-400 mt-1`.
+### Componentes Nativos (Expo / UI Thread)
+- Todos residen en `src/native/`.
+- **Rendimiento:** 100% de animaciones de layout y gestos (Drag/Swipe) deben correr en el UI Thread vía `react-native-reanimated`. Prohibido `setState` durante los callbacks de gestos continuos.
+- **Feedback Haptico:** Obligatorio en interacciones de éxito, selección de tabs (IconBar) o umbrales de gestos (Swipe to delete).
 
 ---
 
-## 4. REGLAS CONTRACTUALES PARA EL AGENTE MCP (STITCH / ANTIGRAVITY)
+## 4. REGLAS CONTRACTUALES PARA LOS AGENTES (MCP / LLMs)
 
-A fin de garantizar la mantenibilidad, consistencia visual y rendimiento de la base de código, todo agente autómata o desarrollador que edite o genere componentes en este proyecto **DEBE cumplir con las siguientes reglas contractuales e inquebrantables**:
-
-1. **PROHIBICIÓN DE ESTILOS EN LÍNEA Y CLASES ARBITRARIAS:**
-   * 🚫 **PROHIBIDO** el uso del atributo `style={{ ... }}` salvo para valores dinámicos calculados en tiempo de ejecución que no puedan representarse en CSS (ej. posiciones de coordenadas en gráficos o canvas).
-   * 🚫 **PROHIBIDO** introducir estilos arbitrarios ad-hoc (valores mágicos sin token) como tamaños/espaciados no estandarizados o colores fuera de la paleta del sistema. Se deben utilizar **exclusivamente** la escala de espaciado estándar y los tokens semánticos definidos en este documento, implementados mediante clases CSS del proyecto y variables `--*`.
-
-2. **ACCESIBILIDAD Y ESTADOS INTERACTIVOS OBLIGATORIOS:**
-   * Todo elemento interactivo (`<button>`, `<a>`, `<input>`, `<select>`, `<textarea>`) debe incluir explícitamente:
-     * Estado `:hover` visualmente distinguible.
-     * Estado `:active` o micro-interacción al presionar.
-     * Estado `:focus-visible` con `ring-2` o `outline` para navegación por teclado.
-     * Contraste accesible que cumpla como mínimo la norma **WCAG AA** (ratio 4.5:1).
-     * Atributos `aria-label`, `aria-expanded` o `aria-describedby` cuando el propósito no sea evidente solo con el texto visual.
-
-3. **ESTRUCTURA MODULAR ESTRICTA:**
-   * Ningún componente visual reutilizable debe definirse inline dentro de los archivos de vistas (`src/pages/*`).
-   * Todos los componentes deben residir en carpetas categorizadas bajo `src/components/` siguiendo la convención de nombres PascalCase:
-     * `src/components/claims/` (Formularios y cards de reclamación).
-     * `src/components/admin/` (Controles de administración, filtros, modales).
-     * `src/components/ui/` (Botones base, inputs, badges, spinners).
-     * `src/components/layout/` (Navbar, Footer, Sidebar).
-
-4. **RESTRICCIÓN DE DEPENDENCIAS CSS EXTERNAS:**
-   * 🚫 **PROHIBIDO** importar librerías CSS externas adicionales (ej. Bootstrap, Material UI, Ant Design, Chakra) que entren en conflicto con la arquitectura CSS del proyecto (hojas globales/de componente, variables y movimientos definidos en esta especificación).
-   * La iconografía debe provenir exclusivamente de la biblioteca oficial `lucide-react`.
-
----
-*Este documento es la única fuente de verdad técnica y estética para Discotech Reclamaciones. Toda modificación visual o inclusión de nuevos componentes debe estar alineada rigurosamente con estas reglas.*
+1. **PROHIBIDO EL USO DE FRAMEWORKS CSS EXTERNOS O TAILWIND.** Toda estilización debe usar las variables CSS definidas en `index.css` de este repositorio. No se debe insertar clases de Tailwind (`flex`, `h-4`, etc.).
+2. **Prohibido el uso de estilos en línea (`style={{}}`) para diseño estructural.** Los estilos en línea solo están permitidos para variables dinámicas (ej. calcular un `transform` basado en el puntero) o props de Framer Motion.
+3. **Motion CSS Aislado:** Nunca aplicar `transition: all` a elementos interactivos manejados por JS/Framer Motion. Limitar CSS transitions a `opacity`, `background-color`, `border-color` y `box-shadow`.
+4. **Accesibilidad:** Mantener contrastes altos (WCAG AA mínimo). Las insignias (badges) y botones oscuros sobre fondos oscuros siempre deben tener bordes sutiles (`border: 1px solid var(--border)`).
+5. **Estructura Modular Restricta:** Los componentes de UI reutilizables deben residir en `src/components/ui/` (web) o `src/native/` (expo). Las vistas completas residen en `src/pages/`.
+6. **No "Jelly" FX:** Al remover, crear o filtrar elementos de listas (como Tickets), usar `AnimatePresence` con fade puro o scale muy sutil. Evitar `layout="position"` o `layout` si este deforma el Bounding Box del elemento. 
+7. **Single Source of Truth:** Este archivo (`DESIGN.md`) junto a `index.css` dictan la ley visual. En caso de duda, apegarse al contraste, tipografía limpia y animaciones instantáneas-fluidas.

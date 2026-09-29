@@ -104,31 +104,11 @@
    number, so nothing can arrive at the wrong time relative to
    anything else. */
 .sek {
-  /* the frame is the composition. It never moves, which is
-     what gives the magnet a stable home to measure from and
-     keeps the object centred at every width. */
   position: relative;
-  display: grid;
-  place-items: center;
-  /* ── THE FRAME IS `--frame`, and it was not ──────────────
-     Seek.tsx computes `--frame` and `--frameh` from the width
-     that is actually set — its note explains why at length:
-     the wall fits a card by the BOUNDING BOX, so a frame sized
-     for the widest the knob goes makes every smaller setting
-     draw smaller. It has been publishing those two numbers to
-     a stylesheet that ignored them and used a hard 380 x 96.
-
-     Measured on a phone card: the frame reserved 380 for a
-     field set to 320, the wall fitted 380 into 260, and the
-     shut button — the only thing drawn at rest — came out at
-     44px. The 36px of nothing was being paid for in the one
-     part of the object you are looking at.
-
-     With the variables wired up the knob does what its own
-     comment says it does, and the frame is tight to what is
-     set on every screen. */
-  width: var(--frame, 380px);
-  height: var(--frameh, 96px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 44px;
   font-family: var(--font-ui);
 }
 
@@ -144,58 +124,30 @@
    loudest thing on an otherwise empty page. */
 .sek-skin {
   position: relative;
-  width: var(--w);
-  /* --shut, NOT a number. The component sets the closed width
-     and the height from one constant precisely so they cannot
-     drift, and its own comment says so: "the skin's height and
-     the closed width are the same number by definition, and
-     two places holding it is two places to get it wrong."
-     Hard-coded here at 44 against a --shut of 64, the closed
-     state was a 64x44 lozenge — a circle that is not round is
-     the one shape everybody notices. */
+  width: var(--shut);
   height: var(--shut);
-  /* ── ONE SHAPE RULE ─────────────────────────────────────
-     Fully round, at every width. The radius used to
-     interpolate 22 → 13, which was a second thing to keep in
-     agreement with the first; a stadium corner needs no
-     agreement at all. At --shut wide it is a circle and at 320
-     a pill, and those are the same rule rather than two ends
-     of a tween. Height is fixed, so it cannot be anything
-     else. */
-  /* the Corner knob's, and ::before and .sek-hit inherit it */
   border-radius: var(--sek-r, 999px);
-  /* ── FLAT, and glass only if asked ──────────────────────
-     `--pane` is the bench's own material token, so this
-     follows the Glass dial rather than deciding for itself:
-     at 0 it resolves to a solid board and at 100 to the
-     frosted pane. It was a translucent ink wash with an inset
-     hairline, which is glass by every visual measure while
-     answering to no control — the worst of both, since it
-     could not be turned off.
-
-     And it picks up Fill for free. Flat resolves --pane to
-     --board, and Fill redeclares --board, so a dark fill
-     gives a dark pill without this rule naming a colour. */
   background: var(--pane);
   -webkit-backdrop-filter:
-    blur(var(--g-blur, 2px)) saturate(var(--g-sat, 150%)) brightness(var(--g-bright, 100%));
+    blur(var(--g-blur, 8px)) saturate(var(--g-sat, 150%)) brightness(var(--g-bright, 100%));
   backdrop-filter:
-    blur(var(--g-blur, 2px)) saturate(var(--g-sat, 150%)) brightness(var(--g-bright, 100%));
+    blur(var(--g-blur, 8px)) saturate(var(--g-sat, 150%)) brightness(var(--g-bright, 100%));
   isolation: isolate;
-  /* the magnet, and the press, on one transform — two
-     transforms on one element is one of them winning */
-  transform: translate(var(--lx), var(--ly)) scale(var(--sk, 1));
+  border: 1px solid var(--pane-edge, var(--border));
+  box-shadow: var(--shadow);
   transition:
-    transform 260ms cubic-bezier(0.22, 0.9, 0.28, 1),
-    background 220ms ease;
-  /* the field is inside from the first frame; this is what
-     keeps it from spilling out of a 44px circle */
+    width 280ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 160ms cubic-bezier(0.23, 1, 0.32, 1),
+    background 220ms ease,
+    border-color 220ms ease;
   overflow: hidden;
 }
 
-/* the edge, and NOTHING until Stroke asks for it. A hairline
-   nobody switched on is a hairline the control cannot remove,
-   which is the same bug the background had. */
+.sek[data-open="true"] .sek-skin {
+  width: var(--open-w);
+  cursor: text;
+}
+
 .sek-skin::before {
   content: "";
   position: absolute;
@@ -206,25 +158,14 @@
   z-index: 2;
 }
 
-/* Hover: it comes up a hair and lifts off the ground. Both
-   are small enough to be felt rather than seen, which is the
-   point — a hover state you notice is a hover state that has
-   said too much. */
 .sek:not([data-open="true"]) .sek-skin:hover {
-  /* the surface answers with brightness rather than movement */
   --g-bright: 104%;
+  border-color: var(--accent);
 }
 
-/* pressed: it yields before it moves. A thing that gives
-   under a click reads as having been pushed; a thing that
-   only expands reads as having been triggered. */
-.sek[data-press="true"] .sek-skin {
-  --sk: 0.93;
-  transition: transform 90ms cubic-bezier(0.4, 0, 0.6, 1);
+.sek:not([data-open="true"]) .sek-skin:active {
+  transform: scale(0.96);
 }
-
-/* the field is a text target, and the object is a button */
-.sek[data-open="true"] .sek-skin { cursor: text; }
 
 /* ── the lens ───────────────────────────────────────────────
    Fixed to the box's left inset and never animated. At the
@@ -295,15 +236,18 @@
   letter-spacing: -0.005em;
   color: var(--ink);
   outline: none;
-  opacity: var(--say);
-  transform: translateX(calc((1 - var(--say)) * -6px));
-  /* until it is most of the way open it is not a target, and
-     a caret that can be placed in a 44px circle is a caret in
-     the wrong place */
-  pointer-events: var(--say-hit, none);
+  opacity: 0;
+  transform: translateX(-6px);
+  pointer-events: none;
+  transition: opacity 180ms ease, transform 240ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.sek[data-open="true"] .sek-field { --say-hit: auto; }
+.sek[data-open="true"] .sek-field {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+  transition-delay: 50ms;
+}
 
 .sek-field::placeholder { color: var(--ink-5); }
 

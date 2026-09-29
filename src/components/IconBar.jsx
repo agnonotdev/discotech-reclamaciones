@@ -1,13 +1,12 @@
-import { useState, useRef, useLayoutEffect, useEffect } from "react";
+import { useState, useRef, useLayoutEffect } from "react";
 import "./IconBar.css";
 
 /**
- * IconBar (Bencho UI adaptation con física de resorte continuo / gelatina)
+ * IconBar (Bencho UI adaptation con calibración de resorte y micro-interacciones)
  *
  * Movimiento elástico ininterrumpido:
- * - Un solo paso de interpolación con cubic-bezier elástico estilo gelatina.
- * - Soporta micro-squash al presionar (onPointerDown) y estiramiento dinámico (stretch)
- *   según la distancia y dirección entre tabs.
+ * - Calibración del indicador a 300ms cubic-bezier(0.23, 1, 0.32, 1).
+ * - Soporta micro-squash al presionar (onPointerDown).
  */
 export function IconBar({
   items = [],
@@ -18,9 +17,8 @@ export function IconBar({
   const currentKey = value ?? items[0]?.key;
   const navRef = useRef(null);
   const itemsRef = useRef({});
-  const [indicatorStyle, setIndicatorStyle] = useState(null);
+  const [indicatorMetrics, setIndicatorMetrics] = useState(null);
   const [isPressing, setIsPressing] = useState(false);
-  const lastMetrics = useRef(null);
 
   const getSlotMetrics = (key) => {
     const el = itemsRef.current[key];
@@ -36,11 +34,7 @@ export function IconBar({
     const measure = () => {
       const metrics = getSlotMetrics(currentKey);
       if (metrics) {
-        lastMetrics.current = metrics;
-        setIndicatorStyle({
-          transform: `translate3d(${metrics.left}px, 0, 0)`,
-          width: `${metrics.width}px`,
-        });
+        setIndicatorMetrics(metrics);
       }
     };
 
@@ -64,12 +58,11 @@ export function IconBar({
     const nextMetrics = getSlotMetrics(key);
     if (!nextMetrics) return;
 
-    lastMetrics.current = nextMetrics;
-    setIndicatorStyle({
-      transform: `translate3d(${nextMetrics.left}px, 0, 0)`,
-      width: `${nextMetrics.width}px`,
-    });
+    setIndicatorMetrics(nextMetrics);
   };
+
+  const activeItem = items.find((item) => item.key === currentKey);
+  const activeColor = activeItem?.color || "var(--accent)";
 
   return (
     <nav
@@ -82,10 +75,15 @@ export function IconBar({
       }}
       aria-label="Filtro de solicitudes"
     >
-      {/* Indicador con resorte continuo estilo gelatina */}
+      {/* Indicador con transición calibrada a 300ms y glass dinámico según estado */}
       <span
         className="gnav-ind"
-        style={indicatorStyle || { opacity: 0 }}
+        style={{
+          "--ind-x": indicatorMetrics ? `${indicatorMetrics.left}px` : "0px",
+          width: indicatorMetrics ? `${indicatorMetrics.width}px` : "0px",
+          opacity: indicatorMetrics ? 1 : 0,
+          "--ind-color": activeColor,
+        }}
         aria-hidden="true"
       />
 

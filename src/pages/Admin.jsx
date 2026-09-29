@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { collection, onSnapshot, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { InlineConfirm } from "../components/InlineConfirm.jsx";
 import { IconBar } from "../components/IconBar.jsx";
@@ -236,12 +237,6 @@ export function Admin() {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <BenchoSearch
-            spring={60}
-            give={50}
-            width={190}
-            onSearch={(val) => setSearchTerm(val)}
-          />
           <Link
             to="/"
             style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: "var(--text)", textDecoration: "none", fontSize: "14px", fontWeight: "500" }}
@@ -267,8 +262,8 @@ export function Admin() {
         </div>
       )}
 
-      {/* Barra de Filtros de Estado con Bencho UI IconBar */}
-      <div className="admin-filter-bar" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "16px", marginBottom: "20px" }}>
+      {/* Barra de Filtros de Estado con IconBar a la izquierda y Buscador a la derecha */}
+      <div className="admin-filter-bar" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "28px", marginBottom: "20px" }}>
         <IconBar
           items={[
             {
@@ -302,99 +297,130 @@ export function Admin() {
           ]}
           value={filterStatus}
           onChange={(newStatus) => setFilterStatus(newStatus)}
-          speed={50}
-          bounce={55}
-          dilate={100}
         />
+
+        <div style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center" }}>
+          <BenchoSearch
+            width={210}
+            onSearch={(val) => setSearchTerm(val)}
+          />
+        </div>
       </div>
 
-      {loading ? (
-        <div className="admin-empty-state">
-          <Loader2 size={32} className="animate-spin" style={{ margin: "0 auto 12px", color: "var(--accent)" }} />
-          <p>Conectando y cargando tickets en tiempo real...</p>
-        </div>
-      ) : filteredTickets.length === 0 ? (
-        <div className="admin-empty-state">
-          <Inbox size={36} style={{ margin: "0 auto 12px", opacity: 0.6 }} />
-          <p>No se encontraron tickets con el filtro seleccionado ({filterStatus}).</p>
-        </div>
-      ) : (
-        <div className="admin-tickets-grid">
-          {filteredTickets.map((ticket) => {
-            const normalizedStatus = getTicketStatus(ticket);
-            const statusClass = normalizedStatus.toLowerCase().replace(/\s+/g, "-");
-            const isSoftDeleted = softDeletedIds.has(ticket.id);
-            return (
-              <article
-                key={ticket.id}
-                className={`admin-ticket-card status-${statusClass} ${isSoftDeleted ? "admin-ticket-soft-deleted" : ""}`}
-              >
-                <div className="admin-ticket-top">
-                  <span className="admin-ticket-radicado">{ticket.radicado || "S/R"}</span>
-                  <span className="admin-ticket-type">{ticket.tipo || "Reclamo"}</span>
-                </div>
-
-              <div className="admin-ticket-info">
-                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                  <User size={15} style={{ opacity: 0.7 }} />
-                  <span><strong>Cliente:</strong> {ticket.nombre || "Anónimo"}</span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                  <Mail size={15} style={{ opacity: 0.7 }} />
-                  <span><strong>Correo:</strong> {ticket.email || "No registrado"}</span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                  <Calendar size={15} style={{ opacity: 0.7 }} />
-                  <span><strong>Fecha:</strong> {formatTimestamp(ticket.createdAt)}</span>
-                </div>
-              </div>
-
-              <div className="admin-ticket-message">
-                <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px", fontWeight: "600", fontSize: "13px" }}>
-                  <MessageSquare size={14} />
-                  <span>Mensaje:</span>
-                </div>
-                {ticket.mensaje || "(Sin detalle registrado)"}
-              </div>
-
-              <div className="admin-ticket-actions">
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
-                  {renderStatusBadge(ticket.estado)}
-                  <InlineConfirm
-                    corner={22}
-                    iconOnly={true}
-                    duration={4000}
-                    label="Eliminar ticket"
-                    onDeleteStart={() => handleSoftDelete(ticket.id)}
-                    onUndo={() => handleUndoDelete(ticket.id)}
-                    onConfirm={() => handleHardDelete(ticket.id)}
-                  />
-                </div>
-
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  {updatingId === ticket.id && (
-                    <Loader2 size={14} className="animate-spin" style={{ color: "var(--accent)" }} />
-                  )}
-                  <select
-                    className="admin-status-select"
-                    value={getTicketStatus(ticket)}
-                    onChange={(e) => handleStatusChange(ticket.id, e.target.value)}
-                    disabled={updatingId === ticket.id || isSoftDeleted}
-                    aria-label="Cambiar estado del ticket"
+      <AnimatePresence mode="wait">
+        {loading ? (
+          <motion.div
+            key="admin-loading"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="admin-empty-state"
+          >
+            <Loader2 size={32} className="animate-spin" style={{ margin: "0 auto 12px", color: "var(--accent)" }} />
+            <p>Conectando y cargando tickets en tiempo real...</p>
+          </motion.div>
+        ) : filteredTickets.length === 0 ? (
+          <motion.div
+            key="admin-empty"
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
+            className="admin-empty-state"
+          >
+            <Inbox size={36} style={{ margin: "0 auto 12px", opacity: 0.6 }} />
+            <p>No se encontraron tickets con el filtro seleccionado ({filterStatus}).</p>
+          </motion.div>
+        ) : (
+          <div className="admin-tickets-grid">
+            <AnimatePresence>
+              {filteredTickets.map((ticket, index) => {
+                const normalizedStatus = getTicketStatus(ticket);
+                const statusClass = normalizedStatus.toLowerCase().replace(/\s+/g, "-");
+                const isSoftDeleted = softDeletedIds.has(ticket.id);
+                return (
+                  <motion.article
+                    key={ticket.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, transition: { duration: 0.12, ease: "easeIn" } }}
+                    transition={{
+                      duration: 0.22,
+                      ease: [0.16, 1, 0.3, 1],
+                      delay: Math.min(index * 0.03, 0.12),
+                    }}
+                    style={{ willChange: "transform, opacity" }}
+                    className={`admin-ticket-card status-${statusClass} ${isSoftDeleted ? "admin-ticket-soft-deleted" : ""}`}
                   >
-                    {AVAILABLE_STATUSES.map((status) => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </article>
-            );
-          })}
-        </div>
-      )}
+                    <div className="admin-ticket-top">
+                      <span className="admin-ticket-radicado">{ticket.radicado || "S/R"}</span>
+                      <span className="admin-ticket-type">{ticket.tipo || "Reclamo"}</span>
+                    </div>
+
+                    <div className="admin-ticket-info">
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <User size={15} style={{ opacity: 0.7 }} />
+                        <span><strong>Cliente:</strong> {ticket.nombre || "Anónimo"}</span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <Mail size={15} style={{ opacity: 0.7 }} />
+                        <span><strong>Correo:</strong> {ticket.email || "No registrado"}</span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <Calendar size={15} style={{ opacity: 0.7 }} />
+                        <span><strong>Fecha:</strong> {formatTimestamp(ticket.createdAt)}</span>
+                      </div>
+                    </div>
+
+                    <div className="admin-ticket-message">
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px", fontWeight: "600", fontSize: "13px" }}>
+                        <MessageSquare size={14} />
+                        <span>Mensaje:</span>
+                      </div>
+                      {ticket.mensaje || "(Sin detalle registrado)"}
+                    </div>
+
+                    <div className="admin-ticket-actions">
+                      <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                        {renderStatusBadge(ticket.estado)}
+                        <InlineConfirm
+                          corner={22}
+                          iconOnly={true}
+                          duration={4000}
+                          label="Eliminar ticket"
+                          onDeleteStart={() => handleSoftDelete(ticket.id)}
+                          onUndo={() => handleUndoDelete(ticket.id)}
+                          onConfirm={() => handleHardDelete(ticket.id)}
+                        />
+                      </div>
+
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        {updatingId === ticket.id && (
+                          <Loader2 size={14} className="animate-spin" style={{ color: "var(--accent)" }} />
+                        )}
+                        <select
+                          className="admin-status-select"
+                          value={getTicketStatus(ticket)}
+                          onChange={(e) => handleStatusChange(ticket.id, e.target.value)}
+                          disabled={updatingId === ticket.id || isSoftDeleted}
+                          aria-label="Cambiar estado del ticket"
+                        >
+                          {AVAILABLE_STATUSES.map((status) => (
+                            <option key={status} value={status}>
+                              {status}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </motion.article>
+                );
+              })}
+            </AnimatePresence>
+          </div>
+        )}
+      </AnimatePresence>
 
     </div>
   );
