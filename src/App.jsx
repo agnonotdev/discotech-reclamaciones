@@ -4,6 +4,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute.jsx";
 import { Home } from "./pages/Home.jsx";
 import { Login } from "./pages/Login.jsx";
 import { Admin } from "./pages/Admin.jsx";
+import { TicketDetail } from "./pages/TicketDetail.jsx";
 import { Footer } from "./components/Footer.jsx";
 
 /**
@@ -25,6 +26,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Admin />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/tickets/:ticketId"
+              element={
+                <ProtectedRoute>
+                  <TicketDetail />
                 </ProtectedRoute>
               }
             />

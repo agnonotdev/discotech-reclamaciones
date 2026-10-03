@@ -9,3 +9,4 @@ export { StatefulButton } from './StatefulButton.native.jsx';
 export { IconBar } from './IconBar.native.jsx';
 export { SwipeableTicketCard } from './SwipeableTicketCard.native.jsx';
 export { Search } from './Search.native.jsx';
+export { Dropdown } from './Dropdown.native.jsx';

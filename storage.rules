@@ -1,0 +1,19 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /tickets/{ticketId}/attachments/{fileName} {
+      // Solo administradores autenticados registrados en la colección 'admins' de Firestore pueden leer
+      allow read: if request.auth != null 
+        && firestore.exists(/databases/(default)/documents/admins/$(request.auth.token.email));
+
+      // Solo administradores pueden subir, con límite estricto de 10 MB
+      allow create: if request.auth != null 
+        && firestore.exists(/databases/(default)/documents/admins/$(request.auth.token.email))
+        && request.resource.size <= 10 * 1024 * 1024;
+      
+      // Los archivos registrados en la auditoría son inmutables
+      allow update, delete: if false;
+    }
+  }
+}

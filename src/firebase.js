@@ -1,9 +1,10 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 
 /**
- * Descripción: Inicialización y configuración de Firebase (Firestore y Auth).
+ * Descripción: Inicialización y configuración de Firebase (Firestore, Auth y Storage).
  * Requiere: Credenciales de configuración del proyecto Firebase.
  * Implementa: Módulo central de conexión a Firebase.
  */
@@ -22,6 +23,7 @@ const app = initializeApp(firebaseConfig);
 
 export const db = getFirestore(app);
 export const auth = getAuth(app);
+export const storage = getStorage(app);
 export default app;
 
 /*

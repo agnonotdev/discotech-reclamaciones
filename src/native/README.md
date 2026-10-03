@@ -151,3 +151,32 @@ export function SearchHeader({ onFilter }) {
   );
 }
 ```
+
+### 4.5. `Dropdown`
+Selector desplegable interactivo con física de rebote elástica (`withSpring({ duration: 350, dampingRatio: 0.82 })`), animación fluida del icono de flecha hacia arriba y rotación, respuesta táctil de rebote (`scale: 0.97`) en el botón trigger, soporte opcional para `multiSelect` (con badges/tags eliminables), buscador interno opcional (`showSearch`), y feedback háptico (`Haptics.selectionAsync`).
+
+```jsx
+import { useState } from 'react';
+import { Dropdown } from './src/native';
+
+const ESTADOS = [
+  { value: 'nuevo', label: 'Nuevo', badge: 3 },
+  { value: 'en_proceso', label: 'En proceso', badge: 5 },
+  { value: 'resuelto', label: 'Resuelto', badge: 12 },
+  { value: 'cerrado', label: 'Cerrado' },
+];
+
+export function FiltroEstadoExample() {
+  const [estado, setEstado] = useState('nuevo');
+
+  return (
+    <Dropdown
+      label="Estado del Ticket"
+      options={ESTADOS}
+      value={estado}
+      onChange={setEstado}
+      showSearch={false}
+    />
+  );
+}
+```

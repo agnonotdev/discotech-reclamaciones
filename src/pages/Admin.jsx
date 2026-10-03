@@ -5,6 +5,7 @@ import { collection, onSnapshot, doc, updateDoc, deleteDoc } from "firebase/fire
 import { InlineConfirm } from "../components/InlineConfirm.jsx";
 import { IconBar } from "../components/IconBar.jsx";
 import { Search as BenchoSearch } from "../components/Search.jsx";
+import { Dropdown } from "../components/ui/Dropdown.jsx";
 import {
   ShieldCheck,
   LogOut,
@@ -19,6 +20,7 @@ import {
   Inbox,
   Home,
   MessageSquare,
+  ChevronRight,
 } from "lucide-react";
 import { db } from "../firebase.js";
 import { useAuth } from "../context/AuthContext.jsx";
@@ -50,6 +52,7 @@ export function Admin() {
   const [errorMessage, setErrorMessage] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const [activeDropdownTicketId, setActiveDropdownTicketId] = useState(null);
 
   function handleSoftDelete(ticketId) {
     setSoftDeletedIds((prev) => new Set([...prev, ticketId]));
@@ -339,6 +342,7 @@ export function Admin() {
                 const normalizedStatus = getTicketStatus(ticket);
                 const statusClass = normalizedStatus.toLowerCase().replace(/\s+/g, "-");
                 const isSoftDeleted = softDeletedIds.has(ticket.id);
+                const isDropdownOpen = activeDropdownTicketId === ticket.id;
                 return (
                   <motion.article
                     key={ticket.id}
@@ -350,7 +354,11 @@ export function Admin() {
                       ease: [0.16, 1, 0.3, 1],
                       delay: Math.min(index * 0.03, 0.12),
                     }}
-                    style={{ willChange: "transform, opacity" }}
+                    style={{
+                      willChange: "transform, opacity",
+                      zIndex: isDropdownOpen ? 50 : 1,
+                      position: "relative",
+                    }}
                     className={`admin-ticket-card status-${statusClass} ${isSoftDeleted ? "admin-ticket-soft-deleted" : ""}`}
                   >
                     <div className="admin-ticket-top">
@@ -371,6 +379,17 @@ export function Admin() {
                         <Calendar size={15} style={{ opacity: 0.7 }} />
                         <span><strong>Fecha:</strong> {formatTimestamp(ticket.createdAt)}</span>
                       </div>
+                      {ticket.asignadoA && (
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12.5px", color: "var(--accent)" }}>
+                          <ShieldCheck size={14} />
+                          <span><strong>Asignado:</strong> {ticket.asignadoA}</span>
+                        </div>
+                      )}
+                      {ticket.prioridad && (
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12.5px" }}>
+                          <span><strong>Prioridad:</strong> {ticket.prioridad}</span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="admin-ticket-message">
@@ -396,22 +415,26 @@ export function Admin() {
                       </div>
 
                       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <Link
+                          to={`/admin/tickets/${ticket.id}`}
+                          className={`admin-view-more-btn view-more-${statusClass}`}
+                        >
+                          <span>Ver más</span>
+                          <ChevronRight size={14} />
+                        </Link>
                         {updatingId === ticket.id && (
                           <Loader2 size={14} className="animate-spin" style={{ color: "var(--accent)" }} />
                         )}
-                        <select
-                          className="admin-status-select"
-                          value={getTicketStatus(ticket)}
-                          onChange={(e) => handleStatusChange(ticket.id, e.target.value)}
-                          disabled={updatingId === ticket.id || isSoftDeleted}
-                          aria-label="Cambiar estado del ticket"
-                        >
-                          {AVAILABLE_STATUSES.map((status) => (
-                            <option key={status} value={status}>
-                              {status}
-                            </option>
-                          ))}
-                        </select>
+                        <div style={{ minWidth: "140px" }}>
+                          <Dropdown
+                            options={AVAILABLE_STATUSES.map(status => ({ value: status, label: status }))}
+                            value={getTicketStatus(ticket)}
+                            onChange={(value) => handleStatusChange(ticket.id, value)}
+                            onOpenChange={(isOpen) => setActiveDropdownTicketId(isOpen ? ticket.id : null)}
+                            disabled={updatingId === ticket.id || isSoftDeleted}
+                            className="admin-status-select-container"
+                          />
+                        </div>
                       </div>
                     </div>
                   </motion.article>

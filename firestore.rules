@@ -4,8 +4,8 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     match /admins/{adminId} {
-      // Un usuario solo puede leer SU PROPIO documento de admin (para verificar si lo es)
-      allow read: if request.auth != null && request.auth.token.email == resource.data.email;
+      // Los usuarios autenticados pueden consultar administradores para la lista de asignación
+      allow read: if request.auth != null;
       // Nadie escribe esta colección desde el cliente; se gestiona manualmente
       allow create, update, delete: if false;
     }
@@ -19,6 +19,14 @@ service cloud.firestore {
       // Se valida contra la colección admins en vez de un correo fijo
       allow read, update, delete: if request.auth != null
                                    && exists(/databases/$(database)/documents/admins/$(request.auth.token.email));
+
+      match /timeline/{eventId} {
+        // Solo administradores autorizados pueden leer y registrar eventos/notas
+        allow read, create: if request.auth != null
+                             && exists(/databases/$(database)/documents/admins/$(request.auth.token.email));
+        // AUDITORÍA INMUTABLE: Ningún usuario ni administrador puede modificar o eliminar eventos registrados
+        allow update, delete: if false;
+      }
     }
   }
 }

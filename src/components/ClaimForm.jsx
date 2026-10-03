@@ -15,6 +15,7 @@ import {
 import { db } from "../firebase.js";
 import { generateClaimId } from "../utils/id-generator.js";
 import { StatefulButton } from "./ui/StatefulButton.jsx";
+import { Dropdown } from "./ui/Dropdown.jsx";
 import { motion, AnimatePresence } from "framer-motion";
 
 /**
@@ -257,25 +258,19 @@ export function ClaimForm() {
           </div>
 
           <div className="claim-field">
-            <label
-              htmlFor="tipo"
-              style={{ display: "flex", alignItems: "center", gap: "6px" }}
-            >
-              <Tag size={15} />
-              Tipo de Solicitud
-            </label>
-            <select
-              id="tipo"
+            <Dropdown
+              label={
+                <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <Tag size={15} />
+                  Tipo de Solicitud
+                </span>
+              }
+              options={CLAIM_TYPES.map(option => ({ value: option, label: option }))}
               value={tipo}
-              onChange={(e) => setTipo(e.target.value)}
+              onChange={setTipo}
               disabled={isSubmitting}
-            >
-              {CLAIM_TYPES.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
+              fullWidth
+            />
           </div>
 
           <div className="claim-field">

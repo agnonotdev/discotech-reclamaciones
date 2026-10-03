@@ -1,0 +1,349 @@
+/* ==========================================================================
+   Dropdown.css — Estilos alineados con DESIGN.md y tokens de index.css
+   ========================================================================== */
+
+.dropdown-root {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  width: auto;
+  min-width: 200px;
+  font-family: inherit;
+  box-sizing: border-box;
+  z-index: 1;
+}
+
+.dropdown-root.dropdown-open {
+  z-index: 1000;
+}
+
+.dropdown-full {
+  width: 100%;
+}
+
+.dropdown-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  user-select: none;
+  letter-spacing: -0.1px;
+}
+
+/* Botón Trigger */
+.dropdown-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 14px;
+  background-color: var(--card-bg-solid);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+  box-sizing: border-box;
+  box-shadow: var(--shadow);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.dropdown-trigger:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.dropdown-trigger-open {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg), 0 0 0 1px var(--accent);
+}
+
+.dropdown-trigger-error {
+  border-color: var(--error);
+  box-shadow: 0 0 0 3px var(--error-bg);
+}
+
+.dropdown-trigger-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.dropdown-trigger-content {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  overflow: hidden;
+  text-align: left;
+  margin-right: 8px;
+}
+
+.dropdown-placeholder {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.dropdown-selected-single {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-selected-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Tags de selección múltiple */
+.dropdown-tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.dropdown-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--code-bg);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.dropdown-tag-remove {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin-left: 2px;
+  opacity: 0.8;
+  border-radius: 50%;
+  transition: opacity 0.15s ease;
+}
+
+.dropdown-tag-remove:hover {
+  opacity: 1;
+}
+
+/* Flecha animada */
+.dropdown-arrow-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  will-change: transform;
+}
+
+.dropdown-arrow-icon {
+  display: block;
+}
+
+/* Menú Flotante Portal con Fondo Sólido Visible según DESIGN.md */
+.dropdown-menu {
+  position: fixed;
+  z-index: 999999 !important;
+  background-color: #1c1820 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: var(--radius-md);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+  padding: 6px;
+  overflow: hidden !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box;
+}
+
+/* Buscador interno estilizado acorde a los estándares de la app */
+.dropdown-search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  background-color: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.dropdown-search-box:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+  background-color: var(--card-bg-solid);
+}
+
+.dropdown-search-icon {
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.dropdown-search-box:focus-within .dropdown-search-icon {
+  color: var(--accent);
+}
+
+.dropdown-search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 500;
+  min-width: 0;
+}
+
+.dropdown-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Lista scrollable de opciones - estrictamente vertical, cero scroll horizontal */
+.dropdown-options-list {
+  max-height: 240px;
+  overflow-y: auto;
+  overflow-x: hidden !important;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-right: 2px;
+  box-sizing: border-box;
+}
+
+.dropdown-options-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.dropdown-options-list::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: var(--radius-full);
+}
+
+/* Ítem de opción */
+.dropdown-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  overflow: hidden !important;
+  box-sizing: border-box;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.dropdown-option:hover {
+  color: var(--text-primary);
+}
+
+.dropdown-option-selected {
+  color: var(--accent);
+  font-weight: 600;
+  background-color: var(--accent-bg);
+}
+
+.dropdown-option-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.dropdown-option-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Contenedor del texto de la opción con marquee sutil al hover si no cabe */
+.dropdown-option-label-wrapper {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.dropdown-option-label {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Efecto Anuncio (Marquee suave) al hacer hover sobre opciones largas */
+.dropdown-option:hover .dropdown-option-label {
+  animation: dropdown-marquee 4s linear infinite alternate;
+  text-overflow: clip;
+}
+
+@keyframes dropdown-marquee {
+  0%, 20% {
+    transform: translateX(0%);
+  }
+  80%, 100% {
+    transform: translateX(calc(-100% + 140px));
+  }
+}
+
+.dropdown-option-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  background-color: var(--social-bg);
+  color: var(--text-secondary);
+}
+
+.dropdown-check-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+.dropdown-empty {
+  padding: 14px 10px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.dropdown-error-text {
+  font-size: 12px;
+  color: var(--error);
+  margin-top: 4px;
+}
